@@ -1,9 +1,16 @@
-/* Study guide catalogue.
+/* Study guide catalogue. Single source for dates and new courses.
+
+   lastUpdated: "YYYY-MM-DD"
+   updates: newest first. Each entry is
+     { date: "YYYY-MM-DD", subject: "email subject", courses: ["Exact title", ...] }
+     courses is [] when that email added no catalogue items.
 
    Picks: [title, detail, url]
-   Resources: [title, length, level, description, url or null]
+   Resources: [title, length, level, description, url or null, added]
      level: "b" beginner, "i" intermediate, "a" advanced, "n" none
      url is null when a newsletter subject line had no article to open.
+     added is optional "YYYY-MM-DD". Omit it for items that are not new.
+     A card shows "New" while added is within 14 days of the visitor's date.
 
    Counts on the page are computed from this file. Do not hard-code them.
 */
@@ -69,7 +76,7 @@
     ["Full Stack Development (Node, Git, SQL, TypeScript)","47h course","i","(subject line only)",null],
     ["PHP and JavaScript calendar app (LAMP)","3h course","i","(subject line only)",null]]}
   ]},
-  {cat:"Entry-level AI",icon:"🤖",note:"From beginner tools to building your own models.",groups:[
+  {cat:"Entry-level AI",icon:"🤖",note:"From beginner tools to building models.",groups:[
    {name:"Beginner-friendly",items:[
     ["AI literacy for everybody","1h course","b","Build an image classifier.",FCC+"ai-literacy-for-everybody/"],
     ["AI tools for developers","2h course","b","Copilot, Claude Code, Gemini CLI, terminal workflows.",FCC+"ai-tools-for-developers/"],
@@ -121,8 +128,8 @@
     ["CS50 Cybersecurity","8h course","i","(subject line only)",null],
     ["C and C++","6h course","i","(subject line only)",null]]}
   ]},
-  {cat:"Games & graphics",icon:"🎮",note:"For your gaming interest.",groups:[
-   {name:"Build things you enjoy",items:[
+  {cat:"Games & graphics",icon:"🎮",note:"Games, graphics, and small projects.",groups:[
+   {name:"Hands-on projects",items:[
     ["Low-level graphics: software renderer in C","2h course","i","",FCC+"master-low-level-graphics-in-c-build-a-software-renderer-from-scratch/"],
     ["3D web development with Blender and Three.js","5h course","i","",FCC+"3d-web-development-with-blender-and-three-js/"],
     ["Blender and Three.js cozy room portfolio","9h course","i","",FCC+"create-a-cute-room-portfolio-with-threejs-blender-javascript/"],
@@ -130,7 +137,7 @@
     ["Discord bot with Python","handbook","b","",FCC+"how-to-build-a-basic-discord-bot-with-python/"],
     ["2D Mario-style game","1h course","b","(subject line only)",null]]}
   ]},
-  {cat:"Front-end & mobile",icon:"📱",note:"Useful once your back-end is solid.",groups:[
+  {cat:"Front-end & mobile",icon:"📱",note:"Web and mobile work beside the back-end path.",groups:[
    {name:"Web and apps",items:[
     ["TypeScript and React","1h course","i","",FCC+"level-up-your-react-skills-with-typescript/"],
     ["TanStack Router crash course","2h course","i","",FCC+"master-modern-react-routing-tanstack-router-crash-course/"],
@@ -149,5 +156,10 @@
   ]}
   ];
 
-  window.StudyPath = { picks: picks, data: data };
+  const lastUpdated = "2026-11-07";
+  const updates = [
+    { date: "2026-11-07", subject: "Site launched", courses: [] }
+  ];
+
+  window.StudyPath = { lastUpdated: lastUpdated, updates: updates, picks: picks, data: data };
 })();

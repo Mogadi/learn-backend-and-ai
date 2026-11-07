@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Quincy's Course Picks · Back-end Study Guide</title>
-  <meta name="description" content="A free study guide of freeCodeCamp back-end and entry-level AI resources picked by Quincy Larson for Muhammad Osama.">
+  <meta name="description" content="A free study map of back-end and beginner AI courses picked by Quincy Larson in his weekly freeCodeCamp emails. Mueen updates it when a new email arrives. Every link is the original free source.">
   <meta name="author" content="Muhammad Osama">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="Study path">
@@ -15,17 +15,17 @@
   <meta property="og:locale" content="en_US">
   <meta property="og:url" content="https://learn-backend-and-ai.vercel.app/">
   <meta property="og:title" content="Quincy's Course Picks · Back-end Study Guide">
-  <meta property="og:description" content="A free study guide of freeCodeCamp back-end and entry-level AI resources picked by Quincy Larson for Muhammad Osama.">
+  <meta property="og:description" content="A free study map of back-end and beginner AI courses picked by Quincy Larson in his weekly freeCodeCamp emails. Mueen updates it when a new email arrives. Every link is the original free source.">
   <meta property="og:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Your free path to back-end and AI. A study guide of freeCodeCamp resources picked by Quincy Larson.">
+  <meta property="og:image:alt" content="A free path to back-end and AI. A study map of freeCodeCamp resources picked by Quincy Larson.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Quincy's Course Picks · Back-end Study Guide">
-  <meta name="twitter:description" content="A free study guide of freeCodeCamp back-end and entry-level AI resources picked by Quincy Larson for Muhammad Osama.">
+  <meta name="twitter:description" content="A free study map of back-end and beginner AI courses picked by Quincy Larson in his weekly freeCodeCamp emails. Mueen updates it when a new email arrives. Every link is the original free source.">
   <meta name="twitter:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
-  <meta name="twitter:image:alt" content="Your free path to back-end and AI. A study guide of freeCodeCamp resources picked by Quincy Larson.">
+  <meta name="twitter:image:alt" content="A free path to back-end and AI. A study map of freeCodeCamp resources picked by Quincy Larson.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="assets/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -53,10 +53,20 @@
     <main id="home">
       <section class="hero" aria-labelledby="hero-heading">
         <div class="hero-copy">
-          <p class="kicker">For Muhammad Osama · Curated by Quincy Larson</p>
-          <span class="hero-star" aria-hidden="true">✧</span>
-          <h1 id="hero-heading">Your free path to <span class="nowrap">back-end</span> &amp; AI.</h1>
-          <p class="hero-sub">Build your foundations. Then build what’s next. Explore back-end development and entry-level AI with freeCodeCamp resources picked by Quincy Larson.</p>
+          <p class="kicker">What is this?</p>
+          <div class="hero-title">
+            <span class="hero-star" aria-hidden="true">✧</span>
+            <h1 id="hero-heading">A free path to <span class="nowrap">back-end</span> &amp; AI.</h1>
+          </div>
+          <div class="about">
+            <p class="hero-sub">A free study map of courses, tutorials, and handbooks picked by Quincy Larson, founder of freeCodeCamp, in his weekly emails. It focuses on back-end development and beginner AI, especially integrating AI into apps and back-ends. Every link goes straight to the original free source.</p>
+            <p class="live-note" id="live-note">
+              <span class="live-mark" aria-hidden="true"></span>
+              <span class="visually-hidden">Updated. </span>
+              <span class="live-line">Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates this site every time a new email arrives.</span>
+              <span class="live-date" id="last-updated"></span>
+            </p>
+          </div>
           <div class="hero-bottom">
             <a class="pill start-learning" href="#main">Start learning <span aria-hidden="true">↗</span></a>
             <p class="hero-aside">A little structure.<br>A lot to discover.</p>
@@ -117,6 +127,10 @@
             <span class="badge b-nl">No link: only seen in a subject line</span>
           </div>
         </div>
+        <section class="updates" id="whats-new" aria-labelledby="updates-heading">
+          <h2 id="updates-heading">What’s new</h2>
+          <ol class="update-list" id="update-list"></ol>
+        </section>
         <nav class="toolbar" aria-label="Filter courses">
           <div class="wrap toolbar-in">
             <div class="tabs" id="tabs"></div>
@@ -144,7 +158,7 @@
         <div id="content"></div>
       </section>
     </main>
-    <footer class="site-footer">Made for Muhammad Osama · Links come from the emails Quincy sent. Updated 6 Nov 2026.</footer>
+    <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
   </div>
 </body>
 </html>

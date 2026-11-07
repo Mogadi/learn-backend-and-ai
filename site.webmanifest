@@ -1,7 +1,7 @@
 {
   "name": "Study path — Quincy's Course Picks",
   "short_name": "Study path",
-  "description": "A free back-end and entry-level AI study guide of freeCodeCamp resources picked by Quincy Larson.",
+  "description": "A free study map of back-end and beginner AI courses picked by Quincy Larson in his weekly freeCodeCamp emails.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./",

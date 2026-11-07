@@ -20,6 +20,8 @@
   var status = document.getElementById("results-status");
   var current = "All";
   var booted = false;
+  var NEW_DAYS = 14;
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   function esc(value) {
     return String(value)
@@ -27,6 +29,57 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function parseDay(value) {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    var year = Number(value.slice(0, 4));
+    var month = Number(value.slice(5, 7));
+    var day = Number(value.slice(8, 10));
+    var utc = Date.UTC(year, month - 1, day);
+    var check = new Date(utc);
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return null;
+    return utc;
+  }
+
+  function formatDate(value) {
+    if (parseDay(value) === null) return "";
+    return Number(value.slice(8, 10)) + " " + MONTHS[Number(value.slice(5, 7)) - 1] + " " + value.slice(0, 4);
+  }
+
+  function isNew(value) {
+    var added = parseDay(value);
+    if (added === null) return false;
+    var now = new Date();
+    var today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    var diff = Math.round((today - added) / 86400000);
+    return diff >= 0 && diff <= NEW_DAYS;
+  }
+
+  var formattedUpdate = formatDate(source.lastUpdated);
+  var lastUpdatedNode = document.getElementById("last-updated");
+  if (lastUpdatedNode && formattedUpdate) {
+    lastUpdatedNode.innerHTML = 'Last updated: <time datetime="' + esc(source.lastUpdated) + '">' + esc(formattedUpdate) + "</time>";
+  }
+  var footerUpdated = document.getElementById("footer-updated");
+  if (footerUpdated && formattedUpdate) {
+    footerUpdated.innerHTML = 'Updated <time datetime="' + esc(source.lastUpdated) + '">' + esc(formattedUpdate) + "</time>.";
+  }
+
+  var updateList = document.getElementById("update-list");
+  var updates = Array.isArray(source.updates) ? source.updates.slice() : [];
+  updates.sort(function (a, b) {
+    return String(b && b.date).localeCompare(String(a && a.date));
+  });
+  if (updateList) {
+    updateList.innerHTML = updates.map(function (entry) {
+      var titles = Array.isArray(entry.courses) ? entry.courses.filter(Boolean) : [];
+      var courseText = titles.length ? titles.map(esc).join(" · ") : "No courses added.";
+      return '<li class="update">' +
+        '<time datetime="' + esc(entry.date) + '">' + esc(formatDate(entry.date) || entry.date) + "</time>" +
+        '<p class="update-subject">' + esc(entry.subject) + "</p>" +
+        '<p class="update-courses">' + courseText + "</p></li>";
+    }).join("");
   }
 
   picksHost.innerHTML = picks.map(function (pick, index) {
@@ -56,12 +109,13 @@
           var badge = item[2] !== "n"
             ? '<span class="badge ' + levels[item[2]][1] + '">' + levels[item[2]][0] + "</span>"
             : "";
+          var fresh = isNew(item[5]) ? '<span class="badge b-new">New</span>' : "";
           var missing = item[4] ? "" : '<span class="badge b-nl">no link</span>';
           var description = item[3] && item[3].charAt(0) !== "("
             ? '<div class="desc">' + esc(item[3]) + "</div>"
             : "";
           return '<article class="card">' + title +
-            '<div class="t"><span>' + esc(item[1]) + "</span>" + badge + missing + "</div>" +
+            '<div class="t"><span>' + esc(item[1]) + "</span>" + fresh + badge + missing + "</div>" +
             description + "</article>";
         }).join("");
         return '<div class="group"><h3>' + esc(group.name) + '</h3><div class="grid">' + cards + "</div></div>";

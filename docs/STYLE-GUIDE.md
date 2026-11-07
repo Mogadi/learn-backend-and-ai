@@ -1,6 +1,6 @@
 # Study Path — detailed reusable design style guide
 
-For Muhammad Osama. Based on the complete HTML, CSS, inline SVG and rendering code in `index.html`, inspected on 7 November 2026 (Africa/Kigali), and the Devlab reference `style-reference.png`.
+Public reference for this study map. Based on the complete HTML, CSS, inline SVG and rendering code in `index.html`, inspected on 7 November 2026 (Africa/Kigali), and the Devlab reference `style-reference.png`.
 
 **Scope:** a reusable visual language for complete multi-page projects, not just this landing page. **Current** means implemented in the source. **Extension** means proposed reuse guidance, not an existing feature. Exact original CSS and responsive overrides are included in section 14. The page was not modified.
 
