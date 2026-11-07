@@ -2,6 +2,8 @@
 
 A free back-end and entry-level AI study guide for Muhammad Osama. Quincy Larson picked the courses and articles in his freeCodeCamp newsletters (December 2024 – October 2026). This site sorts them into a path you can search and filter.
 
+The repository is [learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai).
+
 ![Study path on a desktop screen: the split hero, four counts, and the start of the collection](docs/screenshot-desktop.png)
 
 ![Study path on a phone: the title stacked above the illustration, then the four counts](docs/screenshot-mobile.png)
@@ -59,26 +61,26 @@ The site is a folder of static files. Do not set a build command.
 
 ### Vercel
 
-1. Import the Git repository.
+1. Import [Mogadi/learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai).
 2. Set the framework preset to **Other**.
 3. Leave the build command empty. The output directory is the repository root.
 4. Deploy. `/` serves `index.html`. Unknown paths use `404.html`.
 
 ### GitHub Pages
 
-1. In the repository, open **Settings → Pages**.
+1. In [learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai), open **Settings → Pages**.
 2. Under **Build and deployment**, choose **Deploy from a branch**.
 3. Choose the `main` branch and the `/ (root)` folder.
-4. Save. Pages publishes the same files.
+4. Save. Pages publishes the same files at `https://mogadi.github.io/learn-backend-and-ai/`.
 
-Asset paths are relative, so a project site served from a subpath such as `https://<user>.github.io/<repo>/` still finds the CSS, scripts, and icons.
+Asset paths are relative, so that project-site subpath still finds the CSS, scripts, and icons.
 
-Link-preview crawlers need absolute image URLs. After the site has a public address, add these to the `<head>` of `index.html`, using that address:
+Link-preview crawlers need absolute image URLs. Once Pages is on for `learn-backend-and-ai`, use these in the `<head>` of `index.html`:
 
 ```html
-<meta property="og:url" content="https://example.com/">
-<meta property="og:image" content="https://example.com/assets/og.png">
-<meta name="twitter:image" content="https://example.com/assets/og.png">
+<meta property="og:url" content="https://mogadi.github.io/learn-backend-and-ai/">
+<meta property="og:image" content="https://mogadi.github.io/learn-backend-and-ai/assets/og.png">
+<meta name="twitter:image" content="https://mogadi.github.io/learn-backend-and-ai/assets/og.png">
 ```
 
 `assets/og.png` is already a 1200×630 image in the page’s style.
