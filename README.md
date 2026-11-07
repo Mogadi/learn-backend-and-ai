@@ -2,6 +2,8 @@
 
 A free back-end and entry-level AI study guide for Muhammad Osama. Quincy Larson picked the courses and articles in his freeCodeCamp newsletters (December 2024 – October 2026). This site sorts them into a path you can search and filter.
 
+The site is live at [https://learn-backend-and-ai.vercel.app/](https://learn-backend-and-ai.vercel.app/).
+
 The repository is [learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai).
 
 ![Study path on a desktop screen: the split hero, four counts, and the start of the collection](docs/screenshot-desktop.png)
@@ -75,12 +77,13 @@ The site is a folder of static files. Do not set a build command.
 
 Asset paths are relative, so that project-site subpath still finds the CSS, scripts, and icons.
 
-Link-preview crawlers need absolute image URLs. Once Pages is on for `learn-backend-and-ai`, use these in the `<head>` of `index.html`:
+Link-preview crawlers need absolute image URLs. The live site at `https://learn-backend-and-ai.vercel.app/` uses these in the `<head>` of `index.html`:
 
 ```html
-<meta property="og:url" content="https://mogadi.github.io/learn-backend-and-ai/">
-<meta property="og:image" content="https://mogadi.github.io/learn-backend-and-ai/assets/og.png">
-<meta name="twitter:image" content="https://mogadi.github.io/learn-backend-and-ai/assets/og.png">
+<link rel="canonical" href="https://learn-backend-and-ai.vercel.app/">
+<meta property="og:url" content="https://learn-backend-and-ai.vercel.app/">
+<meta property="og:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
+<meta name="twitter:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
 ```
 
 `assets/og.png` is already a 1200×630 image in the page’s style.
