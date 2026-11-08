@@ -900,7 +900,7 @@
       var disabled = !pressed && count === 0;
       return '<button type="button" class="chip" data-filter="' + kind + '" data-value="' + esc(id) +
         '" aria-pressed="' + (pressed ? "true" : "false") + '"' +
-        (disabled ? ' aria-disabled="true"' : "") + ">" + esc(label) +
+        (disabled ? ' aria-disabled="true" title="No matches with current filters"' : "") + ">" + esc(label) +
         ' <span class="chip-n">' + count + "</span></button>";
     }
 
@@ -1200,32 +1200,35 @@
       observer.observe(filters);
     }
     var dialog = document.getElementById("filters-dialog");
-    var toggle = document.getElementById("filters-toggle");
+    var filtersBtn = document.getElementById("filters-toggle");
     function filtersAreNarrow() {
       return window.matchMedia("(max-width: 640px)").matches;
     }
+    function lockDocumentScroll(locked) {
+      document.documentElement.style.overflow = locked ? "hidden" : "";
+    }
     function syncDialog() {
-      if (!dialog || !toggle) return;
+      if (!dialog || !filtersBtn) return;
       if (!filtersAreNarrow()) {
         filtersOpen = false;
         dialog.hidden = false;
         dialog.removeAttribute("role");
         dialog.removeAttribute("aria-modal");
-        toggle.setAttribute("aria-expanded", "false");
-        document.body.style.overflow = "";
+        filtersBtn.setAttribute("aria-expanded", "false");
+        lockDocumentScroll(false);
         return;
       }
       dialog.hidden = !filtersOpen;
-      toggle.setAttribute("aria-expanded", filtersOpen ? "true" : "false");
+      filtersBtn.setAttribute("aria-expanded", filtersOpen ? "true" : "false");
       if (filtersOpen) {
         dialog.setAttribute("role", "dialog");
         dialog.setAttribute("aria-modal", "true");
         dialog.setAttribute("aria-labelledby", "filters-dialog-title");
-        document.body.style.overflow = "hidden";
+        lockDocumentScroll(true);
       } else {
         dialog.removeAttribute("role");
         dialog.removeAttribute("aria-modal");
-        document.body.style.overflow = "";
+        lockDocumentScroll(false);
       }
     }
     function openFilters() {
@@ -1238,10 +1241,10 @@
       if (!filtersOpen) return;
       filtersOpen = false;
       syncDialog();
-      toggle.focus();
+      filtersBtn.focus();
     }
-    if (toggle) {
-      toggle.addEventListener("click", function () {
+    if (filtersBtn) {
+      filtersBtn.addEventListener("click", function () {
         if (filtersOpen) closeFilters();
         else openFilters();
       });
