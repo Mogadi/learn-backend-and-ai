@@ -26,31 +26,31 @@
   <meta name="twitter:description" content="A free study map of back-end and beginner AI courses picked by Quincy Larson in his weekly freeCodeCamp emails. Mueen updates it when a new email arrives. Every link is the original free source.">
   <meta name="twitter:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
   <meta name="twitter:image:alt" content="A free path to back-end and AI. A study map of freeCodeCamp resources picked by Quincy Larson.">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" href="assets/favicon-32x32.png" type="image/png" sizes="32x32">
-  <link rel="icon" href="assets/favicon-16x16.png" type="image/png" sizes="16x16">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/assets/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/assets/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="js/courses.js" defer></script>
-  <script src="js/main.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/courses.js" defer></script>
+  <script src="/js/main.js" defer></script>
 </head>
-<body>
-  <a class="skip" href="#main">Skip to courses</a>
+<body data-page="home">
+  <a class="skip" href="#main">Skip to content</a>
   <div class="page">
-    <header class="site-header">
-      <a class="wordmark" href="#home" aria-label="Quincy's Course Picks home">// Study path</a>
+    <header class="site-header" id="top">
+      <a class="wordmark" href="/" aria-current="page" aria-label="Study path home">// Study path</a>
       <nav class="topnav" aria-label="Main navigation">
-        <a class="nav-guide" href="#guide">The guide</a>
-        <a class="nav-courses" href="#main">Courses</a>
-        <a class="pill" href="#main">Start learning <span aria-hidden="true">↗</span></a>
+        <a href="/search">Search</a>
+        <a href="/whats-new">What's new</a>
+        <a class="pill" href="#subjects">Start learning <span aria-hidden="true">↗</span></a>
       </nav>
     </header>
-    <main id="home">
+    <main id="main" tabindex="-1">
       <section class="hero" aria-labelledby="hero-heading">
         <p class="kicker">What is this?</p>
         <div class="hero-title">
@@ -67,9 +67,9 @@
           </p>
         </div>
         <div class="hero-bottom">
-          <a class="pill start-learning" href="#main">Start learning <span aria-hidden="true">↗</span></a>
+          <a class="pill start-learning" href="#subjects">Start learning <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="hero-art" aria-hidden="true">
+<div class="hero-art" aria-hidden="true">
           <svg class="art-wide" viewBox="0 0 360 84" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <rect x="0" y="2" width="214" height="80" rx="10" fill="#101010"/>
             <circle cx="18" cy="20" r="5" fill="#e8432f"/><circle cx="34" cy="20" r="5" fill="#d4e5e9"/><circle cx="50" cy="20" r="5" fill="#5b97b4"/>
@@ -120,59 +120,34 @@
       </section>
       <div class="stats" role="region" aria-label="Study guide at a glance">
         <dl class="stat"><dt id="stat-linked">—</dt><dd>Courses you can open</dd></dl>
-        <dl class="stat"><dt id="stat-mentions">—</dt><dd>Mentions awaiting a link</dd></dl>
-        <dl class="stat"><dt id="stat-tracks">—</dt><dd>Study tracks</dd></dl>
-        <dl class="stat"><dt id="stat-picks">—</dt><dd>Starter picks</dd></dl>
+        <dl class="stat"><dt id="stat-mentions">—</dt><dd>Awaiting a link</dd></dl>
+        <dl class="stat"><dt id="stat-subjects">—</dt><dd>Subjects</dd></dl>
+        <dl class="stat"><dt id="stat-picks">—</dt><dd><a id="picks-link" href="/subjects/back-end#starter-picks">Starter picks</a></dd></dl>
       </div>
-      <section class="library" id="main" tabindex="-1" aria-labelledby="library-heading">
-        <nav class="toolbar" id="toolbar" aria-label="Filter courses">
-          <div class="wrap toolbar-in">
-            <div class="tabs" id="tabs"></div>
-            <div class="search">
-              <label for="q">Search courses</label>
-              <svg class="search-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="7" cy="7" r="4.5"/>
-                <path d="M10.5 10.5 14 14" stroke-linecap="round"/>
-              </svg>
-              <input type="search" id="q" name="q" placeholder="Search titles, duration, level…" autocomplete="off" spellcheck="false" aria-controls="content" aria-describedby="search-hint">
-              <p id="search-hint" class="visually-hidden">Searches titles, descriptions, duration, level, group, and track within the selected filter. Escape clears the search.</p>
-            </div>
-          </div>
-        </nav>
-        <div class="results-bar" id="results-bar"></div>
-        <p id="results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
-        <div class="library-intro" id="guide">
-          <div>
-            <p class="kicker">// The collection</p>
-            <h2 id="library-heading">Quincy's Course Picks</h2>
-            <p class="sub">Select a course card to open it on freecodecamp.org in a new tab. Newsletter mentions are listed after those cards. They do not have a checked link yet, so they are not clickable.</p>
-          </div>
-          <div class="legend" role="group" aria-label="Difficulty legend">
-            <span class="badge b-beg">Beginner</span>
-            <span class="badge b-int">Intermediate</span>
-            <span class="badge b-adv">Advanced</span>
-            <span class="badge b-nl">Awaiting a link</span>
-          </div>
+      <section id="subjects" aria-labelledby="subjects-heading">
+        <div class="band-head">
+          <p class="kicker">Subjects</p>
+          <h2 id="subjects-heading">Choose a subject</h2>
+          <p class="sub">Each subject is its own page, with the categories and courses for that path.</p>
         </div>
-        <section class="updates" id="whats-new" aria-labelledby="updates-heading">
-          <h2 id="updates-heading">What’s new</h2>
-          <ol class="update-list" id="update-list"></ol>
-        </section>
-        <section id="top5" aria-labelledby="top5-heading">
-          <div class="section-head">
-            <h2 id="top5-heading">Top 5 for a back-end beginner</h2>
-            <p class="note">A starter route for back-end, separate from the catalogue. The order is the overview, the command line, APIs, databases, then Docker. The Back-end track is the wider list: Foundations starts with the command line and comes before that overview. These are two ways through the same courses, not one syllabus of prerequisites.</p>
-          </div>
-          <div class="picks" id="picks"></div>
-        </section>
+        <ul class="subject-grid" id="subject-grid"></ul>
         <noscript>
-          <p class="note empty">The course list is assembled in the browser. Enable JavaScript to search and filter it.</p>
+          <p class="note empty">The subject list is built in the browser. Enable JavaScript to open each path.</p>
         </noscript>
-        <div id="content"></div>
+      </section>
+      <section id="whats-new" aria-labelledby="updates-heading">
+        <div class="band-head">
+          <p class="kicker">Changelog</p>
+          <h2 id="updates-heading">What's new</h2>
+          <p class="sub">The latest emails. Newest first.</p>
+        </div>
+        <div class="sheet">
+          <ol class="update-list" id="update-preview"></ol>
+          <p class="more"><a href="/whats-new">Full changelog</a></p>
+        </div>
       </section>
     </main>
     <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
   </div>
-  <a class="jump-filters" id="jump-filters" href="#toolbar" hidden>Search and filters</a>
 </body>
 </html>

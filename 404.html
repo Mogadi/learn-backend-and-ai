@@ -9,37 +9,42 @@
   <meta name="description" content="That address is not part of the study guide.">
   <meta name="theme-color" content="#ffffff">
   <link rel="canonical" href="https://learn-backend-and-ai.vercel.app/">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" href="assets/favicon-32x32.png" type="image/png" sizes="32x32">
-  <link rel="icon" href="assets/favicon-16x16.png" type="image/png" sizes="16x16">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/assets/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/assets/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/courses.js" defer></script>
+  <script src="/js/main.js" defer></script>
 </head>
-<body>
+<body data-page="missing">
   <a class="skip" href="#main">Skip to content</a>
-  <div class="page page-short">
-    <header class="site-header">
-      <a class="wordmark" href="index.html" aria-label="Quincy's Course Picks home">// Study path</a>
+  <div class="page">
+    <header class="site-header" id="top">
+      <a class="wordmark" href="/" aria-label="Study path home">// Study path</a>
       <nav class="topnav" aria-label="Main navigation">
-        <a class="nav-guide" href="index.html#guide">The guide</a>
-        <a class="nav-courses" href="index.html#main">Courses</a>
-        <a class="pill" href="index.html#main">Start learning <span aria-hidden="true">↗</span></a>
+        <a href="/search">Search</a>
+        <a href="/whats-new">What's new</a>
+        <a class="pill" href="/#subjects">Start learning <span aria-hidden="true">↗</span></a>
       </nav>
     </header>
     <main id="main" tabindex="-1">
-      <section class="library" aria-labelledby="missing-heading">
+      <header class="page-head">
         <p class="kicker">Missing page</p>
-        <h1 id="missing-heading">This page is not on the path.</h1>
-        <p class="hero-sub">That address is not part of the study guide. The courses are still on the home page.</p>
-        <p><a class="pill" href="index.html">Back to the guide <span aria-hidden="true">↗</span></a></p>
-      </section>
+        <h1>This page is not on the path.</h1>
+        <p class="sub">That address is not part of the study guide.</p>
+        <p class="actions">
+          <a class="pill" href="/">Back to the guide <span aria-hidden="true">↗</span></a>
+          <a class="quiet-link" href="/search">Search courses</a>
+        </p>
+      </header>
     </main>
-    <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources.</footer>
+    <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
   </div>
 </body>
 </html>

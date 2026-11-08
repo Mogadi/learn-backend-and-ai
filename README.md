@@ -2,25 +2,28 @@
 
 A free study map of courses, tutorials, and handbooks for back-end development and beginner AI. Quincy Larson, founder of freeCodeCamp, picks them in his weekly emails. Every link goes to the original free source.
 
-Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates the page when a new email arrives. The catalogue can be searched and filtered.
+Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates the site when a new email arrives. The home page lists subjects. Each subject, the search, and the changelog are their own pages.
 
 The site is live at [https://learn-backend-and-ai.vercel.app/](https://learn-backend-and-ai.vercel.app/).
 
 The repository is [learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai).
 
-![Study path on a desktop screen: the split hero, four counts, and the course filters](docs/screenshot-desktop.png)
+![Study path on a desktop screen: the split hero and the four counts](docs/screenshot-desktop.png)
 
-![Study path on a phone: the title, a small illustration, the counts, and the filters in the first screen](docs/screenshot-mobile.png)
+![Study path on a phone: the title, a small illustration, the counts, and the subject heading](docs/screenshot-mobile.png)
 
 The visual rules for this page, and for reusing them, are in the [style guide](docs/STYLE-GUIDE.md).
 
 ## Features
 
 - Editorial black-and-white layout, with red `#E8432F` and steel blue used sparingly in the illustration and the difficulty key.
-- Six study tracks, five starter picks, and the full catalogue. The counts at the top are computed from the data, not typed in by hand.
-- Filter by track. Search covers titles, descriptions, duration, level, group, and track.
-- A newsletter mention without a checked URL stays in the list, in its own section after the courses you can open. It is not a link.
-- Keyboard focus, a skip link, and reduced-motion support. External course links open in a new tab and use `rel="noopener noreferrer"`.
+- A short home page: one card per subject, with the course count and where that path starts. Counts are computed from the data, not typed in by hand.
+- One page per subject, at `/subjects/<slug>`. Adding a subject in `js/courses.js` adds the page. There is no new HTML file.
+- Category headings are Space Grotesk at a bold weight, with the course count and a divider. A side index jumps between them on a wide screen. On a narrow screen each category opens and closes from a button.
+- Search and the subject filters live on `/search`. What’s new has a short preview on the home page and the full list on `/whats-new`.
+- A newsletter mention without a checked URL stays in the list. It is not a link. A course added in the last 14 days is marked New.
+- The starter picks stay on the Back-end subject page.
+- Keyboard focus, a skip link, and reduced-motion support. The document is the only scroll container. External course links open in a new tab and use `rel="noopener noreferrer"`.
 - Layouts for a wide desktop, a tablet, and a narrow phone.
 
 ## Tech stack
@@ -32,13 +35,18 @@ The visual rules for this page, and for reusing them, are in the [style guide](d
 ## Project structure
 
 ```text
-index.html              Home page
+index.html              Landing page
+subject.html            One subject, served at /subjects/<slug>
+search.html             Search and filters, served at /search
+whats-new.html          Full changelog, served at /whats-new
 404.html                Unknown-path page, for static hosts
+vercel.json             Clean URL for each subject
 site.webmanifest        Name, colours, and icons for installed copies
 favicon.ico             Fallback icon requested at the site root
 css/styles.css          All of the layout and component styles
 js/courses.js           Picks and catalogue
-js/main.js              Filters, search, and the counts
+js/main.js              Pages, search, and the counts
+scripts/serve.py        Local server with the same paths as Vercel
 assets/                 Favicon set, maskable icon, and the 1200×630 social image
 docs/STYLE-GUIDE.md     Colour, type, layout, and component rules
 docs/screenshot-*.png   Desktop and mobile views of the home page
@@ -80,12 +88,12 @@ The launch entry is `{ date: "2026-11-07", subject: "Site launched", courses: []
 From the repository root:
 
 ```bash
-python3 -m http.server 8741
+python3 scripts/serve.py
 ```
 
-Then open [http://127.0.0.1:8741](http://127.0.0.1:8741).
+Then open [http://127.0.0.1:8741](http://127.0.0.1:8741). The same command serves `/subjects/back-end`, `/search`, and `/whats-new`.
 
-There is nothing to install. A local server is the reliable way to preview it. The page also opens from the file itself in most browsers, because the scripts are ordinary deferred files rather than modules.
+There is nothing to install. Paths such as `/css/styles.css` are root-absolute, so open the site from this server rather than as a file on disk. `python3 -m http.server` still serves the HTML files (`subject.html?slug=back-end`, `search.html`, `whats-new.html`). The links inside the pages use the clean paths, which that one-line server does not rewrite.
 
 ## Deploy
 
@@ -96,7 +104,7 @@ The site is a folder of static files. Do not set a build command.
 1. Import [Mogadi/learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai).
 2. Set the framework preset to **Other**.
 3. Leave the build command empty. The output directory is the repository root.
-4. Deploy. `/` serves `index.html`. Unknown paths use `404.html`.
+4. Deploy. `/` serves `index.html`. Unknown paths use `404.html`. `vercel.json` turns `/subjects/<slug>` into `subject.html` and serves `/search` and `/whats-new` without the `.html` suffix. A subject added in `js/courses.js` is enough. Do not add an HTML file for it.
 
 ### GitHub Pages
 
@@ -105,7 +113,7 @@ The site is a folder of static files. Do not set a build command.
 3. Choose the `main` branch and the `/ (root)` folder.
 4. Save. Pages publishes the same files at `https://mogadi.github.io/learn-backend-and-ai/`.
 
-Asset paths are relative, so that project-site subpath still finds the CSS, scripts, and icons.
+Asset paths are root-absolute (`/css/styles.css`, `/js/courses.js`), so a page at `/subjects/<slug>` still loads them on the Vercel root. A GitHub project site on a subpath will not. On Pages, open `subject.html?slug=back-end` directly. The clean `/subjects/<slug>` paths are the Vercel rewrite.
 
 Link-preview crawlers need absolute image URLs. The live site at `https://learn-backend-and-ai.vercel.app/` uses these in the `<head>` of `index.html`:
 
