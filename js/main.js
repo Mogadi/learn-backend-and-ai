@@ -25,6 +25,11 @@
   var data = source.data;
   var picks = Array.isArray(source.picks) ? source.picks : [];
   var slugs = buildSlugs(data);
+  var untilFound = (function () {
+    var probe = document.createElement("div");
+    try { probe.hidden = "until-found"; } catch (error) { return false; }
+    return probe.hidden === "until-found";
+  })();
 
   function esc(value) {
     return String(value == null ? "" : value)
@@ -468,7 +473,7 @@
         '<button type="button" class="group-toggle" aria-expanded="' + (open ? "true" : "false") +
         '" aria-controls="panel-' + id + '" aria-labelledby="label-' + id + '">' +
         '<span class="chevron" aria-hidden="true"></span></button></div>' +
-        '<div class="group-panel" id="panel-' + id + '"><ul class="rows">' +
+        '<div class="group-panel" id="panel-' + id + '"' + (open ? "" : panelHiddenAttr()) + '><ul class="rows">' +
         (rows || '<li class="row"><p class="row-title">No courses in this category.</p></li>') +
         "</ul></div></section>";
     }).join("");
@@ -494,11 +499,39 @@
     bindSpy();
   }
 
-  function setOnlyOpen(group) {
+  function panelHiddenAttr() {
+    return untilFound ? ' hidden="until-found"' : " hidden";
+  }
+
+  function scrollInstant(top) {
+    var root = document.scrollingElement || document.documentElement;
+    var node = document.documentElement;
+    var previous = node.style.scrollBehavior;
+    node.style.scrollBehavior = "auto";
+    if (typeof top === "number") root.scrollTop = top;
+    node.style.scrollBehavior = previous;
+  }
+
+  function scrollByInstant(dy) {
+    var root = document.scrollingElement || document.documentElement;
+    scrollInstant(root.scrollTop + dy);
+  }
+
+  function focusWithoutScroll(node) {
+    if (!node) return;
+    if (!node.hasAttribute("tabindex") && node.tabIndex < 0) node.setAttribute("tabindex", "-1");
+    node.focus({ preventScroll: true });
+  }
+
+  function setOnlyOpen(group, anchor) {
+    var before = anchor ? anchor.getBoundingClientRect().top : null;
     [].forEach.call(document.querySelectorAll(".group"), function (other) {
-      other.classList.toggle("is-open", other === group);
+      other.classList.toggle("is-open", !!group && other === group);
     });
     syncExpanded();
+    if (!anchor || before === null) return;
+    var delta = anchor.getBoundingClientRect().top - before;
+    if (Math.abs(delta) > 1) scrollByInstant(delta);
   }
 
   function bindGroups() {
@@ -509,7 +542,15 @@
       if (!button) return;
       var group = button.closest(".group");
       if (!group) return;
-      setOnlyOpen(group.classList.contains("is-open") ? null : group);
+      var head = group.querySelector(".group-head");
+      setOnlyOpen(group.classList.contains("is-open") ? null : group, head);
+    });
+    [].forEach.call(document.querySelectorAll(".group-panel"), function (panel) {
+      panel.addEventListener("beforematch", function () {
+        var group = panel.closest(".group");
+        if (!group || group.classList.contains("is-open")) return;
+        setOnlyOpen(group, group.querySelector(".group-head"));
+      });
     });
     var index = document.querySelector(".side-index");
     if (index) {
@@ -518,9 +559,22 @@
         if (!link) return;
         var href = link.getAttribute("href") || "";
         if (href.charAt(0) !== "#") return;
-        var group = document.getElementById(href.slice(1));
-        if (!group || !group.classList.contains("group")) return;
-        setOnlyOpen(group);
+        var id = href.slice(1);
+        var group = document.getElementById(id);
+        event.preventDefault();
+        if (group && group.classList.contains("group")) {
+          setOnlyOpen(group);
+          var head = group.querySelector(".group-head");
+          if (head) scrollInstant(Math.max(0, head.getBoundingClientRect().top + window.scrollY - 16));
+          focusWithoutScroll(group.querySelector(".group-toggle"));
+        } else {
+          var target = document.getElementById(id);
+          if (target) {
+            scrollInstant(Math.max(0, target.getBoundingClientRect().top + window.scrollY - 16));
+            focusWithoutScroll(target);
+          }
+        }
+        if (history.pushState) history.pushState(null, "", "#" + id);
       });
     }
     syncExpanded();
@@ -533,15 +587,23 @@
       }
       var target = id ? document.getElementById(id) : null;
       var group = target && (target.classList.contains("group") ? target : target.closest(".group"));
-      if (group && group.classList.contains("group")) setOnlyOpen(group);
+      if (group && group.classList.contains("group")) {
+        setOnlyOpen(group, group.querySelector(".group-head"));
+        focusWithoutScroll(group.querySelector(".group-toggle"));
+      }
     });
   }
 
   function syncExpanded() {
     [].forEach.call(document.querySelectorAll(".group"), function (group) {
       var button = group.querySelector(".group-toggle");
-      if (!button) return;
-      button.setAttribute("aria-expanded", group.classList.contains("is-open") ? "true" : "false");
+      var panel = group.querySelector(".group-panel");
+      var open = group.classList.contains("is-open");
+      if (button) button.setAttribute("aria-expanded", open ? "true" : "false");
+      if (!panel) return;
+      if (open) panel.removeAttribute("hidden");
+      else if (untilFound) panel.setAttribute("hidden", "until-found");
+      else panel.setAttribute("hidden", "");
     });
   }
 
@@ -628,9 +690,7 @@
     }
 
     function summaryText(term) {
-      if (!term && current === "All") {
-        return countSentence(data.length, "subject", "subjects") + ". Choose one, or type a search, to list courses.";
-      }
+      if (!term && current === "All") return countSentence(data.length, "subject", "subjects") + ".";
       var text = scopeLabel() + " · " +
         countSentence(lastLinked, "course you can open", "courses you can open") + " · " +
         countSentence(lastMention, "awaiting a link", "awaiting a link");
@@ -639,7 +699,7 @@
     }
 
     function statusText(term) {
-      if (!term && current === "All") return "Choose a subject or type a search. The course list is hidden.";
+      if (!term && current === "All") return countSentence(data.length, "subject", "subjects") + ".";
       var parts = [scopeLabel() + "."];
       if (term) parts.push("Search “" + term + "”.");
       if (!lastLinked && !lastMention) parts.push("No matches.");
@@ -673,8 +733,7 @@
         if (!picked) return;
         suggestions += rowHtml(picked, { label: track.cat, href: "/subjects/" + slugs[index] });
       });
-      return '<div class="search-start"><p class="sub">The full list stays hidden until you choose a subject or type a search.</p>' +
-        '<ul class="start-subjects">' + subjects + "</ul>" +
+      return '<div class="search-start"><ul class="start-subjects">' + subjects + "</ul>" +
         '<h2 class="result-title">One course from each subject</h2><ul class="rows">' +
         suggestions + "</ul></div>";
     }
@@ -694,6 +753,7 @@
         lastMention = 0;
         if (resultsBar) resultsBar.innerHTML = "<p>" + esc(summaryText("")) + "</p>";
         content.innerHTML = startHtml();
+        paintTabs();
         return;
       }
       var linkedCount = 0;
@@ -738,6 +798,7 @@
       } else {
         content.innerHTML = html;
       }
+      paintTabs();
     }
 
     function announce(immediate) {
@@ -766,14 +827,18 @@
       }
     }
 
-    function setTrack(name) {
-      current = name;
+    function paintTabs() {
       [].forEach.call(tabs.children, function (tab) {
-        var on = tab.dataset.track === name;
+        var on = !idle() && tab.dataset.track === current;
         tab.classList.toggle("active", on);
         tab.setAttribute("aria-pressed", on ? "true" : "false");
       });
+    }
+
+    function setTrack(name) {
+      current = name;
       render();
+      paintTabs();
       announce(true);
       writeUrl();
     }
@@ -781,14 +846,14 @@
     ["All"].concat(data.map(function (track) { return track.cat; })).forEach(function (name) {
       var button = document.createElement("button");
       button.type = "button";
-      button.className = "tab" + (name === current ? " active" : "");
+      button.className = "tab";
       button.textContent = name === "All" ? "All subjects" : name;
       button.dataset.track = name;
-      button.setAttribute("aria-pressed", name === current ? "true" : "false");
       button.setAttribute("aria-controls", "content");
       button.addEventListener("click", function () { setTrack(name); });
       tabs.appendChild(button);
     });
+    paintTabs();
 
     var actionRoot = content.closest(".sheet") || content;
     actionRoot.addEventListener("click", function (event) {

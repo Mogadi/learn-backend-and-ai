@@ -20,7 +20,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-[hidden] { display: none !important; }
+[hidden]:not([hidden="until-found"]) { display: none !important; }
 
 html { scroll-padding-block-start: 20px; }
 
@@ -598,8 +598,6 @@ h3.subject-name {
   letter-spacing: .02em;
   color: #333;
 }
-
-.group:not(.is-open) .group-panel { display: none; }
 
 .group-toggle {
   display: block;
