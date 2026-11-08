@@ -2,6 +2,8 @@
 
 Public reference for this study map. Based on the complete HTML, CSS, inline SVG and rendering code in `index.html`, inspected on 7 November 2026 (Africa/Kigali), and the Devlab reference `style-reference.png`.
 
+On 8 November 2026 the catalogue interaction, label sizes, and mobile hero were revised. Where a pixel value below disagrees with `css/styles.css` or `js/main.js`, those files are the source of truth. The data shapes in `js/courses.js` did not change.
+
 **Scope:** a reusable visual language for complete multi-page projects, not just this landing page. **Current** means implemented in the source. **Extension** means proposed reuse guidance, not an existing feature. Exact original CSS and responsive overrides are included in section 14. The page was not modified.
 
 ## Table of contents

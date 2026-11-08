@@ -8,9 +8,9 @@ The site is live at [https://learn-backend-and-ai.vercel.app/](https://learn-bac
 
 The repository is [learn-backend-and-ai](https://github.com/Mogadi/learn-backend-and-ai).
 
-![Study path on a desktop screen: the split hero, four counts, and the start of the collection](docs/screenshot-desktop.png)
+![Study path on a desktop screen: the split hero, four counts, and the course filters](docs/screenshot-desktop.png)
 
-![Study path on a phone: the title stacked above the illustration, then the four counts](docs/screenshot-mobile.png)
+![Study path on a phone: the title, a small illustration, the counts, and the filters in the first screen](docs/screenshot-mobile.png)
 
 The visual rules for this page, and for reusing them, are in the [style guide](docs/STYLE-GUIDE.md).
 
@@ -18,8 +18,8 @@ The visual rules for this page, and for reusing them, are in the [style guide](d
 
 - Editorial black-and-white layout, with red `#E8432F` and steel blue used sparingly in the illustration and the difficulty key.
 - Six study tracks, five starter picks, and the full catalogue. The counts at the top are computed from the data, not typed in by hand.
-- Filter by track, and search titles and descriptions.
-- A resource that only appeared in a newsletter subject line stays in the list and is marked “no link”.
+- Filter by track. Search covers titles, descriptions, duration, level, group, and track.
+- A newsletter mention without a checked URL stays in the list, in its own section after the courses you can open. It is not a link.
 - Keyboard focus, a skip link, and reduced-motion support. External course links open in a new tab and use `rel="noopener noreferrer"`.
 - Layouts for a wide desktop, a tablet, and a narrow phone.
 
