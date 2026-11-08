@@ -330,19 +330,22 @@
     return bits;
   }
 
-  function rowHtml(item, where) {
+  function rowHtml(item, where, display) {
     var url = safeUrl(item[4]);
     var description = publicDescription(item[3]);
+    var titleHtml = display && display.titleHtml != null ? display.titleHtml : esc(item[0]);
+    var descHtml = display && display.descHtml != null ? display.descHtml : (description ? esc(description) : "");
     var title = url
-      ? '<a class="row-title" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(item[0]) +
+      ? '<a class="row-title" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + titleHtml +
         '<span class="ext" aria-hidden="true"> ↗</span><span class="visually-hidden"> (opens in new tab)</span></a>'
-      : '<p class="row-title">' + esc(item[0]) + "</p>";
+      : '<p class="row-title">' + titleHtml + "</p>";
     var place = "";
     if (where && where.href) {
       place = '<a class="row-where" href="' + esc(where.href) + '">' + esc(where.label) + "</a>";
     }
-    return '<li class="row' + (url ? "" : " is-awaiting") + '"><div class="row-main">' + title +
-      (description ? '<p class="desc">' + esc(description) + "</p>" : "") +
+    return '<li class="row' + (url ? "" : " is-awaiting") + (display && display.extra ? '" data-extra="' + esc(display.extra) : "") +
+      '"' + (display && display.hidden ? ' hidden="until-found"' : "") + '><div class="row-main">' + title +
+      (descHtml ? '<p class="desc">' + descHtml + "</p>" : "") +
       '</div><p class="row-meta">' + place + metaBits(item) + "</p></li>";
   }
 
@@ -364,20 +367,15 @@
     data.forEach(function (track) {
       resources = resources.concat(itemsOf(track));
     });
-    var counts = tally(resources);
-    var linkedNode = document.getElementById("stat-linked");
-    var mentionNode = document.getElementById("stat-mentions");
-    var subjectNode = document.getElementById("stat-subjects");
-    var picksNode = document.getElementById("stat-picks");
-    if (linkedNode) linkedNode.textContent = String(counts.linked);
-    if (mentionNode) mentionNode.textContent = String(counts.waiting);
-    if (subjectNode) subjectNode.textContent = String(data.length);
-    if (picksNode) picksNode.textContent = String(picks.length);
-    var picksLink = document.getElementById("picks-link");
-    if (picksLink && data.length) {
-      picksLink.href = "/subjects/" + slugs[picksIndex()] + "#starter-picks";
+    var strip = document.getElementById("subjects");
+    if (strip) {
+      strip.innerHTML = data.map(function (track, index) {
+        return '<a href="/subjects/' + slugs[index] + '"><span class="strip-name">' + esc(track.cat) +
+          '</span><span class="strip-count">' + itemsOf(track).length + (itemsOf(track).length === 1 ? " course" : " courses") + "</span></a>";
+      }).join("");
     }
-    subjectCards(document.getElementById("subject-grid"));
+    var courseSearch = document.getElementById("course-search");
+    if (courseSearch) courseSearch.textContent = "or search " + resources.length + " courses";
     var preview = document.getElementById("update-preview");
     if (preview) {
       var updates = sortedUpdates();
@@ -633,178 +631,393 @@
   }
 
   function renderSearch() {
-    var tabs = document.getElementById("tabs");
     var content = document.getElementById("content");
     var query = document.getElementById("q");
     var resultsBar = document.getElementById("results-bar");
     var status = document.getElementById("results-status");
-    var toolbar = document.getElementById("toolbar");
+    var filters = document.getElementById("filters");
     var jump = document.getElementById("jump-filters");
-    if (!tabs || !content || !query) return;
+    var form = document.getElementById("search-form");
+    if (!content || !query) return;
 
-    var current = "All";
+    /* Level field: "b" Beginner, "i" Intermediate, "a" Advanced.
+       "n" and anything else have no level; they stay in the list
+       only while no level filter is selected.
+       Length is parsed from the first "Nh" or "N min" in the length
+       string. Hours under 2, from 2 up to but not including 10, and
+       10 or more. No number means Unknown length. */
+    var levelOptions = [
+      { id: "beginner", code: "b", label: "Beginner" },
+      { id: "intermediate", code: "i", label: "Intermediate" },
+      { id: "advanced", code: "a", label: "Advanced" }
+    ];
+    var lengthOptions = [
+      { id: "under-2h", label: "Under 2h" },
+      { id: "2-10h", label: "2–10h" },
+      { id: "10h-plus", label: "10h+" },
+      { id: "unknown", label: "Unknown length" }
+    ];
+    var subjectsOn = [];
+    var levelsOn = [];
+    var lengthsOn = [];
+    var expanded = {};
     var booted = false;
-    var lastLinked = 0;
-    var lastMention = 0;
+    var lastCount = 0;
     var lastAnnounced = "";
     var announceTimer = 0;
+    var totalCourses = 0;
+    data.forEach(function (track) { totalCourses += itemsOf(track).length; });
+    query.placeholder = "Search " + totalCourses + " courses";
 
-    function resolveSubject(value) {
-      if (!value || value === "All") return "All";
-      var lowered = value.toLowerCase();
-      var i;
-      for (i = 0; i < data.length; i += 1) {
-        if (data[i].cat === value || slugs[i] === lowered) return data[i].cat;
-      }
-      return "All";
+    function fold(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }
 
-    function subjectSlug(name) {
+    function damerau(a, b) {
+      if (a === b) return 0;
+      var la = a.length;
+      var lb = b.length;
+      if (Math.abs(la - lb) > 1) return 2;
+      var dp = [];
+      var i, j;
+      for (i = 0; i <= la; i += 1) {
+        dp[i] = [i];
+      }
+      for (j = 0; j <= lb; j += 1) dp[0][j] = j;
+      for (i = 1; i <= la; i += 1) {
+        for (j = 1; j <= lb; j += 1) {
+          var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+          var value = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+          if (i > 1 && j > 1 && a.charAt(i - 1) === b.charAt(j - 2) && a.charAt(i - 2) === b.charAt(j - 1)) {
+            value = Math.min(value, dp[i - 2][j - 2] + 1);
+          }
+          dp[i][j] = value;
+        }
+      }
+      return dp[la][lb];
+    }
+
+    function textWords(text) {
+      var raw = String(text || "");
+      var out = [];
+      var re = /[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
+      var match;
+      while ((match = re.exec(raw))) {
+        out.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          fold: fold(match[0]).replace(/-/g, "")
+        });
+      }
+      return out;
+    }
+
+    function wordHit(q, word) {
+      if (!q || !word.fold) return false;
+      if (q.length <= 2) return word.fold === q;
+      if (word.fold.indexOf(q) !== -1) return true;
+      return q.length >= 4 && word.fold.length >= 4 && Math.abs(q.length - word.fold.length) <= 1 && damerau(q, word.fold) <= 1;
+    }
+
+    function hitRanges(q, words) {
+      var ranges = [];
+      words.forEach(function (word) {
+        if (wordHit(q, word)) ranges.push({ start: word.start, end: word.end });
+      });
+      return ranges;
+    }
+
+    function queryWords() {
+      return fold(query.value).split(/[^a-z0-9]+/).filter(Boolean);
+    }
+
+    function levelOf(item) {
       var i;
-      for (i = 0; i < data.length; i += 1) {
-        if (data[i].cat === name) return slugs[i];
+      for (i = 0; i < levelOptions.length; i += 1) {
+        if (levelOptions[i].code === item[2]) return levelOptions[i].id;
       }
       return "";
     }
 
-    var params = new URLSearchParams(location.search);
-    current = resolveSubject(params.get("subject") || "");
-    if (params.get("q")) query.value = params.get("q");
+    function hoursOf(text) {
+      var value = String(text || "").toLowerCase();
+      var hours = value.match(/(\d+(?:\.\d+)?)\s*h\b/);
+      if (hours) return Number(hours[1]);
+      var minutes = value.match(/(\d+(?:\.\d+)?)\s*min\b/);
+      if (minutes) return Number(minutes[1]) / 60;
+      return null;
+    }
 
-    function haystack(item, track, group) {
-      return [
-        item[0], item[1], item[3],
-        levelWords[item[2]] || "",
+    function bucketOf(text) {
+      var hours = hoursOf(text);
+      if (hours === null || isNaN(hours)) return "unknown";
+      if (hours < 2) return "under-2h";
+      if (hours < 10) return "2-10h";
+      return "10h-plus";
+    }
+
+    function matchItem(item, track, group, words) {
+      var titleWords = textWords(item[0]);
+      var description = publicDescription(item[3]);
+      var descWords = textWords(description);
+      var extra = textWords([
         levels[item[2]] ? levels[item[2]][0] : "",
-        track.cat, group.name,
-        safeUrl(item[4]) ? "" : "awaiting a link"
-      ].join(" ").toLowerCase();
-    }
-
-    function scopeLabel() {
-      return current === "All" ? "All subjects" : current;
-    }
-
-    function idle() {
-      return !query.value.trim() && current === "All";
-    }
-
-    function summaryText(term) {
-      if (!term && current === "All") return countSentence(data.length, "subject", "subjects") + ".";
-      var text = scopeLabel() + " · " +
-        countSentence(lastLinked, "course you can open", "courses you can open") + " · " +
-        countSentence(lastMention, "awaiting a link", "awaiting a link");
-      if (term) text = "“" + term + "” · " + text;
-      return text;
-    }
-
-    function statusText(term) {
-      if (!term && current === "All") return countSentence(data.length, "subject", "subjects") + ".";
-      var parts = [scopeLabel() + "."];
-      if (term) parts.push("Search “" + term + "”.");
-      if (!lastLinked && !lastMention) parts.push("No matches.");
-      else {
-        parts.push(countSentence(lastLinked, "course you can open.", "courses you can open."));
-        parts.push(countSentence(lastMention, "awaiting a link.", "awaiting a link."));
+        item[1] || "",
+        track.cat,
+        group.name
+      ].join(" "));
+      if (!words.length) return { title: true, titleRanges: [], descRanges: [] };
+      var titleRanges = [];
+      var descRanges = [];
+      var allInTitle = true;
+      var i;
+      for (i = 0; i < words.length; i += 1) {
+        var q = words[i];
+        var inTitle = hitRanges(q, titleWords);
+        var inDesc = hitRanges(q, descWords);
+        var inExtra = hitRanges(q, extra);
+        if (!inTitle.length && !inDesc.length && !inExtra.length) return null;
+        if (!inTitle.length) allInTitle = false;
+        titleRanges = titleRanges.concat(inTitle);
+        descRanges = descRanges.concat(inDesc);
       }
-      return parts.join(" ");
+      return { title: allInTitle, titleRanges: titleRanges, descRanges: descRanges };
     }
 
-    function startHtml() {
-      var subjects = data.map(function (track, index) {
-        var counts = tally(itemsOf(track));
-        return '<li><a href="/subjects/' + slugs[index] + '"><span>' + esc(track.cat) +
-          '</span><span class="idx-n">' + counts.total + "</span></a></li>";
-      }).join("");
-      var suggestions = "";
+    function highlight(text, ranges) {
+      var raw = String(text || "");
+      if (!ranges || !ranges.length) return esc(raw);
+      var sorted = ranges.slice().sort(function (a, b) { return a.start - b.start; });
+      var merged = [];
+      sorted.forEach(function (range) {
+        var last = merged[merged.length - 1];
+        if (last && range.start <= last.end) last.end = Math.max(last.end, range.end);
+        else merged.push({ start: range.start, end: range.end });
+      });
+      var html = "";
+      var cursor = 0;
+      merged.forEach(function (range) {
+        var start = Math.max(0, Math.min(raw.length, range.start));
+        var end = Math.max(start, Math.min(raw.length, range.end));
+        html += esc(raw.slice(cursor, start)) + "<mark>" + esc(raw.slice(start, end)) + "</mark>";
+        cursor = end;
+      });
+      return html + esc(raw.slice(cursor));
+    }
+
+    function selected(list, id) { return list.indexOf(id) !== -1; }
+
+    function toggle(list, id) {
+      var at = list.indexOf(id);
+      if (at === -1) list.push(id);
+      else list.splice(at, 1);
+    }
+
+    function splitParam(value) {
+      if (!value) return [];
+      return String(value).split(",").map(function (part) { return part.trim().toLowerCase(); }).filter(Boolean);
+    }
+
+    function known(list, id) {
+      var i;
+      for (i = 0; i < list.length; i += 1) if (list[i].id === id) return true;
+      return false;
+    }
+
+    function readUrl() {
+      var params = new URLSearchParams(location.search);
+      query.value = params.get("q") || "";
+      subjectsOn = splitParam(params.get("subject")).filter(function (id) { return slugs.indexOf(id) !== -1; });
+      levelsOn = splitParam(params.get("level")).filter(function (id) { return known(levelOptions, id); });
+      lengthsOn = splitParam(params.get("length")).filter(function (id) { return known(lengthOptions, id); });
+    }
+
+    function writeUrl(push) {
+      var params = new URLSearchParams();
+      var text = query.value.trim();
+      if (text) params.set("q", text);
+      if (subjectsOn.length) params.set("subject", subjectsOn.join(","));
+      if (levelsOn.length) params.set("level", levelsOn.join(","));
+      if (lengthsOn.length) params.set("length", lengthsOn.join(","));
+      var qs = params.toString();
+      var next = location.pathname + (qs ? "?" + qs : "");
+      if (next === location.pathname + location.search) return;
+      history[push ? "pushState" : "replaceState"](null, "", next);
+    }
+
+    function consider(item, track, group, slug, ignore) {
+      if (ignore !== "subject" && subjectsOn.length && subjectsOn.indexOf(slug) === -1) return false;
+      if (ignore !== "level" && levelsOn.length) {
+        var level = levelOf(item);
+        if (!level || levelsOn.indexOf(level) === -1) return false;
+      }
+      if (ignore !== "length" && lengthsOn.length && lengthsOn.indexOf(bucketOf(item[1])) === -1) return false;
+      return true;
+    }
+
+    function levelOf(item) {
+      var i;
+      for (i = 0; i < levelOptions.length; i += 1) {
+        if (levelOptions[i].code === item[2]) return levelOptions[i].id;
+      }
+      return "";
+    }
+
+    function eachItem(fn) {
       data.forEach(function (track, index) {
-        var picked = null;
-        (track.groups || []).some(function (group) {
-          return (group.items || []).some(function (item) {
-            if (!item || !item[0]) return false;
-            if (!picked) picked = item;
-            if (safeUrl(item[4])) {
-              picked = item;
-              return true;
-            }
-            return false;
+        var slug = slugs[index];
+        (track.groups || []).forEach(function (group, groupIndex) {
+          (group.items || []).forEach(function (item) {
+            if (item && item[0]) fn(item, track, group, slug, groupIndex);
           });
         });
-        if (!picked) return;
-        suggestions += rowHtml(picked, { label: track.cat, href: "/subjects/" + slugs[index] });
       });
-      return '<div class="search-start"><ul class="start-subjects">' + subjects + "</ul>" +
-        '<h2 class="result-title">One course from each subject</h2><ul class="rows">' +
-        suggestions + "</ul></div>";
     }
 
-    function actionButtons(term) {
-      var html = "";
-      if (term) html += '<button type="button" data-action="clear-search">Clear search</button>';
-      if (current !== "All") html += '<button type="button" data-action="search-all">' + (term ? "Search all subjects" : "Show all subjects") + "</button>";
-      return html ? '<div class="results-actions">' + html + "</div>" : "";
+    function chipCount(ignore, id, kind) {
+      var words = queryWords();
+      var count = 0;
+      eachItem(function (item, track, group, slug) {
+        if (!consider(item, track, group, slug, ignore)) return;
+        if (kind === "subject" && slug !== id) return;
+        if (kind === "level" && levelOf(item) !== id) return;
+        if (kind === "length" && bucketOf(item[1]) !== id) return;
+        if (!matchItem(item, track, group, words)) return;
+        count += 1;
+      });
+      return count;
+    }
+
+    function chip(kind, id, label, pressed, count) {
+      return '<button type="button" class="chip" data-filter="' + kind + '" data-value="' + esc(id) +
+        '" aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(label) +
+        ' <span class="chip-n">' + count + "</span></button>";
+    }
+
+    function paintFilters() {
+      if (!filters) return;
+      var html = '<div class="filter-group" role="group" aria-label="Subject"><span class="filter-label">Subject</span>';
+      data.forEach(function (track, index) {
+        html += chip("subject", slugs[index], track.cat, selected(subjectsOn, slugs[index]), chipCount("subject", slugs[index], "subject"));
+      });
+      html += '</div><div class="filter-group" role="group" aria-label="Level"><span class="filter-label">Level</span>';
+      levelOptions.forEach(function (option) {
+        html += chip("level", option.id, option.label, selected(levelsOn, option.id), chipCount("level", option.id, "level"));
+      });
+      html += '</div><div class="filter-group" role="group" aria-label="Length"><span class="filter-label">Length</span>';
+      lengthOptions.forEach(function (option) {
+        var count = chipCount("length", option.id, "length");
+        if (!count && option.id === "unknown" && !selected(lengthsOn, option.id)) return;
+        html += chip("length", option.id, option.label, selected(lengthsOn, option.id), count);
+      });
+      html += "</div>";
+      if (subjectsOn.length || levelsOn.length || lengthsOn.length) {
+        html += '<button type="button" class="reset" data-action="reset">Reset</button>';
+      }
+      filters.innerHTML = html;
     }
 
     function render() {
-      var term = query.value.trim().toLowerCase();
-      var raw = query.value.trim();
-      if (!raw && current === "All") {
-        lastLinked = 0;
-        lastMention = 0;
-        if (resultsBar) resultsBar.innerHTML = "<p>" + esc(summaryText("")) + "</p>";
-        content.innerHTML = startHtml();
-        paintTabs();
-        return;
-      }
-      var linkedCount = 0;
-      var mentionCount = 0;
-      var html = data.filter(function (track) {
-        return current === "All" || track.cat === current;
-      }).map(function (track, index) {
-        var realIndex = current === "All" ? index : data.indexOf(track);
-        var slug = slugs[realIndex];
+      var words = queryWords();
+      var blocks = "";
+      var count = 0;
+      data.forEach(function (track, index) {
+        var slug = slugs[index];
+        if (subjectsOn.length && subjectsOn.indexOf(slug) === -1) return;
         var ids = uniqueIds((track.groups || []).map(function (group) { return group.name; }));
-        var rows = "";
+        var groupHtml = "";
+        var subjectCount = 0;
         (track.groups || []).forEach(function (group, groupIndex) {
-          (group.items || []).forEach(function (item) {
+          var found = [];
+          (group.items || []).forEach(function (item, itemIndex) {
             if (!item || !item[0]) return;
-            if (term && haystack(item, track, group).indexOf(term) === -1) return;
-            if (safeUrl(item[4])) linkedCount += 1;
-            else mentionCount += 1;
-            rows += rowHtml(item, {
-              label: group.name,
-              href: "/subjects/" + slug + "#" + ids[groupIndex]
+            if (levelsOn.length && levelsOn.indexOf(levelOf(item)) === -1) return;
+            if (lengthsOn.length && lengthsOn.indexOf(bucketOf(item[1])) === -1) return;
+            var hit = matchItem(item, track, group, words);
+            if (!hit) return;
+            found.push({ item: item, hit: hit, index: itemIndex });
+          });
+          if (!found.length) return;
+          found.sort(function (a, b) {
+            if (a.hit.title === b.hit.title) return a.index - b.index;
+            return a.hit.title ? -1 : 1;
+          });
+          subjectCount += found.length;
+          var key = slug + ":" + ids[groupIndex];
+          var open = !!expanded[key];
+          var rows = found.map(function (entry, rowIndex) {
+            var description = publicDescription(entry.item[3]);
+            return rowHtml(entry.item, { label: group.name, href: "/subjects/" + slug + "#" + ids[groupIndex] }, {
+              titleHtml: highlight(entry.item[0], entry.hit.titleRanges),
+              descHtml: description ? highlight(description, entry.hit.descRanges) : "",
+              extra: key,
+              hidden: !open && rowIndex >= 5
             });
+          }).join("");
+          var more = found.length > 5
+            ? '<button type="button" class="show-all" data-show="' + esc(key) + '" aria-expanded="' + (open ? "true" : "false") +
+              '" aria-controls="rows-' + esc(key) + '">' + (open ? "Show 5" : "Show all " + found.length) + "</button>"
+            : "";
+          groupHtml += '<section class="result-group"><h3 class="result-cat">' + esc(group.name) +
+            ' <span class="group-count">' + countSentence(found.length, "course", "courses") + "</span></h3>" +
+            '<ul class="rows" id="rows-' + esc(key) + '">' + rows + "</ul>" + more + "</section>";
+        });
+        if (!groupHtml) return;
+        count += subjectCount;
+        blocks += '<section class="result-block" aria-labelledby="result-' + slug + '"><h2 class="result-title" id="result-' + slug +
+          '"><a href="/subjects/' + slug + '">' + esc(track.cat) + "</a> <span class=\"group-count\">" +
+          countSentence(subjectCount, "course", "courses") + "</span></h2>" + groupHtml + "</section>";
+      });
+      lastCount = count;
+      paintFilters();
+      if (resultsBar) {
+        resultsBar.innerHTML = "<p>" + (count
+          ? esc(countSentence(count, "course", "courses")) + "."
+          : "No courses match" + (query.value.trim() ? " “" + esc(query.value.trim()) + "”" : "") + ".") + "</p>";
+      }
+      if (!blocks) {
+        var clears = "";
+        subjectsOn.forEach(function (id) {
+          clears += '<button type="button" data-filter="subject" data-value="' + esc(id) + '">Remove ' + esc(labelFor("subject", id)) + "</button>";
+        });
+        levelsOn.forEach(function (id) {
+          clears += '<button type="button" data-filter="level" data-value="' + esc(id) + '">Remove ' + esc(labelFor("level", id)) + "</button>";
+        });
+        lengthsOn.forEach(function (id) {
+          clears += '<button type="button" data-filter="length" data-value="' + esc(id) + '">Remove ' + esc(labelFor("length", id)) + "</button>";
+        });
+        if (query.value.trim()) clears += '<button type="button" data-action="clear-search">Clear search</button>';
+        content.innerHTML = '<div class="empty"><p>No courses match' + (query.value.trim() ? " “" + esc(query.value.trim()) + "”" : "") + ".</p>" +
+          "<p>Remove a filter, or clear the search, and try again.</p>" +
+          (clears ? '<div class="results-actions">' + clears + "</div>" : "") + "</div>";
+      } else {
+        content.innerHTML = blocks;
+        [].forEach.call(content.querySelectorAll("[data-extra]"), function (row) {
+          row.addEventListener("beforematch", function () {
+            expanded[row.getAttribute("data-extra")] = true;
+            render();
           });
         });
-        if (!rows) return "";
-        var shown = (rows.match(/<li class="row/g) || []).length;
-        return '<section class="result-block" aria-labelledby="result-' + slug + '">' +
-          '<h2 class="result-title" id="result-' + slug + '"><a href="/subjects/' + slug + '">' + esc(track.cat) +
-          '</a> <span class="group-count">' + countSentence(shown, "course", "courses") + "</span></h2>" +
-          '<ul class="rows">' + rows + "</ul></section>";
-      }).join("");
+      }
+    }
 
-      lastLinked = linkedCount;
-      lastMention = mentionCount;
-      if (resultsBar) {
-        resultsBar.innerHTML = "<p>" + esc(summaryText(raw)) + "</p>" +
-          (linkedCount + mentionCount > 0 ? actionButtons(raw) : "");
-      }
-      if (!html) {
-        content.innerHTML = '<div class="empty"><p>No matches for “' + esc(raw) + "” in " + esc(scopeLabel()) + ".</p>" +
-          "<p>Search checks the title, description, duration, level, group, and subject.</p>" +
-          actionButtons(raw) + "</div>";
-      } else {
-        content.innerHTML = html;
-      }
-      paintTabs();
+    function labelFor(kind, id) {
+      var list = kind === "subject" ? data.map(function (track, index) { return { id: slugs[index], label: track.cat }; })
+        : (kind === "level" ? levelOptions : lengthOptions);
+      var i;
+      for (i = 0; i < list.length; i += 1) if (list[i].id === id) return list[i].label;
+      return id;
+    }
+
+    function statusText() {
+      if (!lastCount) return "No courses match.";
+      return countSentence(lastCount, "course.", "courses.");
     }
 
     function announce(immediate) {
       if (!booted || !status) return;
       window.clearTimeout(announceTimer);
-      var message = statusText(query.value.trim());
+      var message = statusText();
       var speak = function () {
         if (message === lastAnnounced) return;
         status.textContent = message;
@@ -814,73 +1027,66 @@
       else announceTimer = window.setTimeout(speak, 400);
     }
 
-    function writeUrl() {
-      var next = new URLSearchParams();
-      var term = query.value.trim();
-      var slug = current === "All" ? "" : subjectSlug(current);
-      if (term) next.set("q", term);
-      if (slug) next.set("subject", slug);
-      var qs = next.toString();
-      var url = location.pathname + (qs ? "?" + qs : "") + location.hash;
-      if (url !== location.pathname + location.search + location.hash) {
-        history.replaceState(null, "", url);
-      }
+    function applyFilter(kind, id) {
+      var list = kind === "subject" ? subjectsOn : (kind === "level" ? levelsOn : lengthsOn);
+      toggle(list, id);
+      render();
+      announce(true);
+      writeUrl(true);
+      var again = document.querySelector('[data-filter="' + kind + '"][data-value="' + id + '"]');
+      if (again) again.focus();
     }
 
-    function paintTabs() {
-      [].forEach.call(tabs.children, function (tab) {
-        var on = !idle() && tab.dataset.track === current;
-        tab.classList.toggle("active", on);
-        tab.setAttribute("aria-pressed", on ? "true" : "false");
+    if (filters) {
+      filters.addEventListener("click", function (event) {
+        var reset = event.target.closest("[data-action='reset']");
+        if (reset) {
+          subjectsOn = [];
+          levelsOn = [];
+          lengthsOn = [];
+          render();
+          announce(true);
+          writeUrl(true);
+          return;
+        }
+        var chipButton = event.target.closest("[data-filter]");
+        if (!chipButton) return;
+        applyFilter(chipButton.dataset.filter, chipButton.dataset.value);
       });
     }
-
-    function setTrack(name) {
-      current = name;
-      render();
-      paintTabs();
-      announce(true);
-      writeUrl();
-    }
-
-    ["All"].concat(data.map(function (track) { return track.cat; })).forEach(function (name) {
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "tab";
-      button.textContent = name === "All" ? "All subjects" : name;
-      button.dataset.track = name;
-      button.setAttribute("aria-controls", "content");
-      button.addEventListener("click", function () { setTrack(name); });
-      tabs.appendChild(button);
-    });
-    paintTabs();
-
-    var actionRoot = content.closest(".sheet") || content;
-    actionRoot.addEventListener("click", function (event) {
-      var button = event.target.closest("[data-action]");
-      if (!button) return;
-      if (button.dataset.action === "clear-search") {
+    var sheet = content.closest(".sheet") || content;
+    sheet.addEventListener("click", function (event) {
+      var show = event.target.closest("[data-show]");
+      if (show) {
+        var key = show.getAttribute("data-show");
+        expanded[key] = !expanded[key];
+        render();
+        announce(false);
+        var again = document.querySelector('[data-show="' + key + '"]');
+        if (again) again.focus();
+        return;
+      }
+      var clear = event.target.closest("[data-action='clear-search']");
+      if (clear) {
         query.value = "";
         render();
         announce(true);
-        writeUrl();
+        writeUrl(true);
         query.focus();
-      } else if (button.dataset.action === "search-all") {
-        setTrack("All");
-        var all = tabs.querySelector('[data-track="All"]');
-        if (all) all.focus();
+        return;
       }
+      var remove = event.target.closest(".empty [data-filter]");
+      if (remove) applyFilter(remove.dataset.filter, remove.dataset.value);
     });
-
     query.addEventListener("input", function () {
       render();
       announce(false);
-      writeUrl();
+      writeUrl(false);
     });
     query.addEventListener("search", function () {
       render();
       announce(true);
-      writeUrl();
+      writeUrl(true);
     });
     query.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && query.value) {
@@ -888,26 +1094,39 @@
         query.value = "";
         render();
         announce(true);
-        writeUrl();
+        writeUrl(true);
       }
     });
-
-    if (jump && toolbar && "IntersectionObserver" in window) {
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        render();
+        announce(true);
+        writeUrl(true);
+      });
+    }
+    window.addEventListener("popstate", function () {
+      readUrl();
+      render();
+      announce(true);
+    });
+    if (jump && filters && "IntersectionObserver" in window) {
       var observer = new IntersectionObserver(function (entries) {
         var entry = entries[0];
         var away = !entry.isIntersecting && entry.boundingClientRect.top < 0;
         jump.hidden = !away;
       }, { root: null, threshold: 0 });
-      observer.observe(toolbar);
+      observer.observe(filters);
     }
-
     var allItems = [];
     data.forEach(function (track) { allItems = allItems.concat(itemsOf(track)); });
     revealNewLegend(anyNew(allItems));
+    readUrl();
     render();
-    writeUrl();
     booted = true;
-    if (!idle()) announce(true);
+    if (window.matchMedia("(pointer: fine)").matches && !window.matchMedia("(pointer: coarse)").matches) {
+      query.focus({ preventScroll: true });
+    }
   }
 
   function renderUpdates() {

@@ -44,11 +44,19 @@
   <div class="page">
     <header class="site-header" id="top">
       <a class="wordmark" href="/" aria-label="Study path home">// Study path</a>
-      <nav class="topnav" aria-label="Main navigation">
-        <a href="/search" aria-current="page">Search</a>
-        <a href="/whats-new">What's new</a>
-        <a class="pill" href="/#subjects">All subjects</a>
-      </nav>
+      <div class="header-tools">
+        <form class="header-search" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="header-q">Search courses</label>
+          <input id="header-q" type="search" name="q" placeholder="Search" autocomplete="off" enterkeyhint="search">
+        </form>
+        <a class="icon-btn" href="/search" aria-label="Search courses">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14" stroke-linecap="round"/></svg>
+        </a>
+        <nav class="topnav" aria-label="Main navigation">
+          <a href="/whats-new">What's new</a>
+          <a class="pill" href="/#subjects">All subjects</a>
+        </nav>
+      </div>
     </header>
     <main id="main" tabindex="-1">
       <header class="page-head">
@@ -59,7 +67,12 @@
           </ol>
         </nav>
         <h1>Search courses</h1>
-        <p class="sub">Choose a subject or type a search. A course without a checked link stays in the list and is not clickable.</p>
+        <form class="big-search" id="search-form" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="q">Search courses</label>
+          <input type="search" id="q" name="q" placeholder="Search courses" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-controls="content" aria-describedby="search-hint">
+          <p id="search-hint" class="visually-hidden">Matches every word, in any order. One typo is forgiven in a word of four or more letters. Escape clears the text.</p>
+        </form>
+        <div class="filter-row" id="filters"></div>
         <div class="legend" role="group" aria-label="Course labels">
           <span class="badge b-beg">Beginner</span>
           <span class="badge b-int">Intermediate</span>
@@ -69,20 +82,6 @@
         </div>
         <p class="new-note" id="new-note" hidden>New means the course was added in the last 14 days.</p>
       </header>
-      <nav class="toolbar" id="toolbar" aria-label="Filter courses">
-        <div class="toolbar-in">
-          <div class="tabs" id="tabs"></div>
-          <div class="search">
-            <label class="visually-hidden" for="q">Search courses</label>
-            <svg class="search-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="7" cy="7" r="4.5"/>
-              <path d="M10.5 10.5 14 14" stroke-linecap="round"/>
-            </svg>
-            <input type="search" id="q" name="q" placeholder="Search titles, duration, level…" autocomplete="off" spellcheck="false" aria-controls="content" aria-describedby="search-hint">
-            <p id="search-hint" class="visually-hidden">Searches titles, descriptions, duration, level, group, and subject. Escape clears the search.</p>
-          </div>
-        </div>
-      </nav>
       <div class="sheet">
         <div class="results-bar" id="results-bar"></div>
         <p id="results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -94,6 +93,6 @@
     </main>
     <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
   </div>
-  <a class="jump-filters" id="jump-filters" href="#toolbar" hidden>Search and filters</a>
+  <a class="jump-filters" id="jump-filters" href="#search-form" hidden>Search and filters</a>
 </body>
 </html>

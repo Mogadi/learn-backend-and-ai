@@ -27,11 +27,19 @@
   <div class="page">
     <header class="site-header" id="top">
       <a class="wordmark" href="/" aria-label="Study path home">// Study path</a>
-      <nav class="topnav" aria-label="Main navigation">
-        <a href="/search">Search</a>
-        <a href="/whats-new">What's new</a>
-        <a class="pill" href="/#subjects">All subjects</a>
-      </nav>
+      <div class="header-tools">
+        <form class="header-search" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="header-q">Search courses</label>
+          <input id="header-q" type="search" name="q" placeholder="Search" autocomplete="off" enterkeyhint="search">
+        </form>
+        <a class="icon-btn" href="/search" aria-label="Search courses">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14" stroke-linecap="round"/></svg>
+        </a>
+        <nav class="topnav" aria-label="Main navigation">
+          <a href="/whats-new">What's new</a>
+          <a class="pill" href="/#subjects">All subjects</a>
+        </nav>
+      </div>
     </header>
     <main id="main" tabindex="-1">
       <header class="page-head">
