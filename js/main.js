@@ -641,15 +641,16 @@
     if (!content || !query) return;
 
     /* Level field: "b" Beginner, "i" Intermediate, "a" Advanced.
-       "n" and anything else have no level; they stay in the list
-       only while no level filter is selected.
+       "n" and anything else are Unrated, so the four counts add up
+       to every course.
        Length is parsed from the first "Nh" or "N min" in the length
        string. Hours under 2, from 2 up to but not including 10, and
        10 or more. No number means Unknown length. */
     var levelOptions = [
       { id: "beginner", code: "b", label: "Beginner" },
       { id: "intermediate", code: "i", label: "Intermediate" },
-      { id: "advanced", code: "a", label: "Advanced" }
+      { id: "advanced", code: "a", label: "Advanced" },
+      { id: "unrated", code: "", label: "Unrated" }
     ];
     var lengthOptions = [
       { id: "under-2h", label: "Under 2h" },
@@ -661,6 +662,9 @@
     var levelsOn = [];
     var lengthsOn = [];
     var expanded = {};
+    var filtersOpen = false;
+    var matchMode = "all";
+    var lastNote = "";
     var booted = false;
     var lastCount = 0;
     var lastAnnounced = "";
@@ -714,9 +718,12 @@
 
     function wordHit(q, word) {
       if (!q || !word.fold) return false;
-      if (q.length <= 2) return word.fold === q;
-      if (word.fold.indexOf(q) !== -1) return true;
-      return q.length >= 4 && word.fold.length >= 4 && Math.abs(q.length - word.fold.length) <= 1 && damerau(q, word.fold) <= 1;
+      if (word.fold === q) return true;
+      if (q.length >= 2 && word.fold.indexOf(q) === 0) return true;
+      if (q.length < 5) return false;
+      if (word.fold.length >= 5 && Math.abs(q.length - word.fold.length) <= 1 && damerau(q, word.fold) <= 1) return true;
+      if (word.fold.length > q.length && damerau(q, word.fold.slice(0, q.length)) <= 1) return true;
+      return false;
     }
 
     function hitRanges(q, words) {
@@ -734,9 +741,9 @@
     function levelOf(item) {
       var i;
       for (i = 0; i < levelOptions.length; i += 1) {
-        if (levelOptions[i].code === item[2]) return levelOptions[i].id;
+        if (levelOptions[i].code && levelOptions[i].code === item[2]) return levelOptions[i].id;
       }
-      return "";
+      return "unrated";
     }
 
     function hoursOf(text) {
@@ -756,7 +763,7 @@
       return "10h-plus";
     }
 
-    function matchItem(item, track, group, words) {
+    function scoreItem(item, track, group, words) {
       var titleWords = textWords(item[0]);
       var description = publicDescription(item[3]);
       var descWords = textWords(description);
@@ -766,9 +773,10 @@
         track.cat,
         group.name
       ].join(" "));
-      if (!words.length) return { title: true, titleRanges: [], descRanges: [] };
+      if (!words.length) return { matched: 0, full: true, title: true, titleRanges: [], descRanges: [], matchedWords: [] };
       var titleRanges = [];
       var descRanges = [];
+      var matchedWords = [];
       var allInTitle = true;
       var i;
       for (i = 0; i < words.length; i += 1) {
@@ -776,12 +784,21 @@
         var inTitle = hitRanges(q, titleWords);
         var inDesc = hitRanges(q, descWords);
         var inExtra = hitRanges(q, extra);
-        if (!inTitle.length && !inDesc.length && !inExtra.length) return null;
+        if (!inTitle.length && !inDesc.length && !inExtra.length) continue;
+        matchedWords.push(q);
         if (!inTitle.length) allInTitle = false;
         titleRanges = titleRanges.concat(inTitle);
         descRanges = descRanges.concat(inDesc);
       }
-      return { title: allInTitle, titleRanges: titleRanges, descRanges: descRanges };
+      if (!matchedWords.length) return null;
+      return {
+        matched: matchedWords.length,
+        full: matchedWords.length === words.length,
+        title: allInTitle && matchedWords.length === words.length,
+        titleRanges: titleRanges,
+        descRanges: descRanges,
+        matchedWords: matchedWords
+      };
     }
 
     function highlight(text, ranges) {
@@ -845,22 +862,11 @@
       history[push ? "pushState" : "replaceState"](null, "", next);
     }
 
-    function consider(item, track, group, slug, ignore) {
+    function passesFilters(item, slug, ignore) {
       if (ignore !== "subject" && subjectsOn.length && subjectsOn.indexOf(slug) === -1) return false;
-      if (ignore !== "level" && levelsOn.length) {
-        var level = levelOf(item);
-        if (!level || levelsOn.indexOf(level) === -1) return false;
-      }
+      if (ignore !== "level" && levelsOn.length && levelsOn.indexOf(levelOf(item)) === -1) return false;
       if (ignore !== "length" && lengthsOn.length && lengthsOn.indexOf(bucketOf(item[1])) === -1) return false;
       return true;
-    }
-
-    function levelOf(item) {
-      var i;
-      for (i = 0; i < levelOptions.length; i += 1) {
-        if (levelOptions[i].code === item[2]) return levelOptions[i].id;
-      }
-      return "";
     }
 
     function eachItem(fn) {
@@ -878,19 +884,23 @@
       var words = queryWords();
       var count = 0;
       eachItem(function (item, track, group, slug) {
-        if (!consider(item, track, group, slug, ignore)) return;
+        if (!passesFilters(item, slug, ignore)) return;
         if (kind === "subject" && slug !== id) return;
         if (kind === "level" && levelOf(item) !== id) return;
         if (kind === "length" && bucketOf(item[1]) !== id) return;
-        if (!matchItem(item, track, group, words)) return;
+        var hit = scoreItem(item, track, group, words);
+        if (!hit) return;
+        if (matchMode === "all" && words.length && !hit.full) return;
         count += 1;
       });
       return count;
     }
 
     function chip(kind, id, label, pressed, count) {
+      var disabled = !pressed && count === 0;
       return '<button type="button" class="chip" data-filter="' + kind + '" data-value="' + esc(id) +
-        '" aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(label) +
+        '" aria-pressed="' + (pressed ? "true" : "false") + '"' +
+        (disabled ? ' aria-disabled="true"' : "") + ">" + esc(label) +
         ' <span class="chip-n">' + count + "</span></button>";
     }
 
@@ -917,63 +927,117 @@
       filters.innerHTML = html;
     }
 
+    function decideMode(words) {
+      if (!words.length) return "all";
+      var full = false;
+      var any = false;
+      eachItem(function (item, track, group, slug) {
+        if (!passesFilters(item, slug)) return;
+        var hit = scoreItem(item, track, group, words);
+        if (!hit) return;
+        any = true;
+        if (hit.full) full = true;
+      });
+      if (full) return "all";
+      return any ? "any" : "none";
+    }
+
     function render() {
       var words = queryWords();
+      matchMode = decideMode(words);
+      var browsing = !words.length && !subjectsOn.length && !levelsOn.length && !lengthsOn.length;
       var blocks = "";
       var count = 0;
+      var wordCounts = {};
+      words.forEach(function (word) { wordCounts[word] = 0; });
+      var sections = [];
       data.forEach(function (track, index) {
         var slug = slugs[index];
         if (subjectsOn.length && subjectsOn.indexOf(slug) === -1) return;
         var ids = uniqueIds((track.groups || []).map(function (group) { return group.name; }));
         var groupHtml = "";
         var subjectCount = 0;
+        var best = 0;
         (track.groups || []).forEach(function (group, groupIndex) {
           var found = [];
           (group.items || []).forEach(function (item, itemIndex) {
             if (!item || !item[0]) return;
             if (levelsOn.length && levelsOn.indexOf(levelOf(item)) === -1) return;
             if (lengthsOn.length && lengthsOn.indexOf(bucketOf(item[1])) === -1) return;
-            var hit = matchItem(item, track, group, words);
+            var hit = scoreItem(item, track, group, words);
             if (!hit) return;
+            if (matchMode === "all" && words.length && !hit.full) return;
             found.push({ item: item, hit: hit, index: itemIndex });
           });
           if (!found.length) return;
           found.sort(function (a, b) {
-            if (a.hit.title === b.hit.title) return a.index - b.index;
-            return a.hit.title ? -1 : 1;
+            if (b.hit.matched !== a.hit.matched) return b.hit.matched - a.hit.matched;
+            if (a.hit.title !== b.hit.title) return a.hit.title ? -1 : 1;
+            return a.index - b.index;
+          });
+          found.forEach(function (entry) {
+            if (entry.hit.matched > best) best = entry.hit.matched;
+            entry.hit.matchedWords.forEach(function (word) {
+              if (wordCounts[word] != null) wordCounts[word] += 1;
+            });
           });
           subjectCount += found.length;
           var key = slug + ":" + ids[groupIndex];
           var open = !!expanded[key];
+          var limit = browsing ? found.length : 5;
           var rows = found.map(function (entry, rowIndex) {
             var description = publicDescription(entry.item[3]);
             return rowHtml(entry.item, { label: group.name, href: "/subjects/" + slug + "#" + ids[groupIndex] }, {
               titleHtml: highlight(entry.item[0], entry.hit.titleRanges),
               descHtml: description ? highlight(description, entry.hit.descRanges) : "",
               extra: key,
-              hidden: !open && rowIndex >= 5
+              hidden: !browsing && !open && rowIndex >= limit
             });
           }).join("");
-          var more = found.length > 5
-            ? '<button type="button" class="show-all" data-show="' + esc(key) + '" aria-expanded="' + (open ? "true" : "false") +
-              '" aria-controls="rows-' + esc(key) + '">' + (open ? "Show 5" : "Show all " + found.length) + "</button>"
-            : "";
-          groupHtml += '<section class="result-group"><h3 class="result-cat">' + esc(group.name) +
-            ' <span class="group-count">' + countSentence(found.length, "course", "courses") + "</span></h3>" +
-            '<ul class="rows" id="rows-' + esc(key) + '">' + rows + "</ul>" + more + "</section>";
+          if (browsing) {
+            groupHtml += '<button type="button" class="cat-line" data-show="' + esc(key) + '" aria-expanded="' +
+              (open ? "true" : "false") + '" aria-controls="rows-' + esc(key) + '"><span>' + esc(group.name) +
+              '</span><span class="group-count">' + countSentence(found.length, "course", "courses") + "</span></button>" +
+              '<ul class="rows" id="rows-' + esc(key) + '" data-extra="' + esc(key) + '"' +
+              (open ? "" : ' hidden="until-found"') + ">" + rows + "</ul>";
+          } else {
+            var more = found.length > limit
+              ? '<button type="button" class="show-all" data-show="' + esc(key) + '" aria-expanded="' + (open ? "true" : "false") +
+                '" aria-controls="rows-' + esc(key) + '">' + (open ? "Show " + limit : "Show all " + found.length) + "</button>"
+              : "";
+            groupHtml += '<section class="result-group"><h3 class="result-cat">' + esc(group.name) +
+              ' <span class="group-count">' + countSentence(found.length, "course", "courses") + "</span></h3>" +
+              '<ul class="rows" id="rows-' + esc(key) + '">' + rows + "</ul>" + more + "</section>";
+          }
         });
         if (!groupHtml) return;
         count += subjectCount;
-        blocks += '<section class="result-block" aria-labelledby="result-' + slug + '"><h2 class="result-title" id="result-' + slug +
-          '"><a href="/subjects/' + slug + '">' + esc(track.cat) + "</a> <span class=\"group-count\">" +
-          countSentence(subjectCount, "course", "courses") + "</span></h2>" + groupHtml + "</section>";
+        sections.push({
+          best: best,
+          html: '<section class="result-block" aria-labelledby="result-' + slug + '"><h2 class="result-title" id="result-' + slug +
+            '"><a href="/subjects/' + slug + '">' + esc(track.cat) + "</a> <span class=\"group-count\">" +
+            countSentence(subjectCount, "course", "courses") + "</span></h2>" + groupHtml + "</section>"
+        });
       });
+      if (matchMode === "any") sections.sort(function (a, b) { return b.best - a.best; });
+      blocks = sections.map(function (section) { return section.html; }).join("");
       lastCount = count;
+      lastNote = "";
+      if (matchMode === "any") {
+        var parts = words.filter(function (word) { return wordCounts[word]; }).map(function (word) {
+          return word + " (" + wordCounts[word] + ")";
+        });
+        lastNote = "No course matches all words. Showing courses that match any: " + parts.join(", ") + ".";
+      }
       paintFilters();
+      paintPills();
+      var countLabel = document.getElementById("filters-count");
+      if (countLabel) countLabel.textContent = "(" + (subjectsOn.length + levelsOn.length + lengthsOn.length) + ")";
       if (resultsBar) {
-        resultsBar.innerHTML = "<p>" + (count
-          ? esc(countSentence(count, "course", "courses")) + "."
-          : "No courses match" + (query.value.trim() ? " “" + esc(query.value.trim()) + "”" : "") + ".") + "</p>";
+        var summary = lastNote || (count
+          ? countSentence(count, "course", "courses") + "."
+          : "No courses match" + (query.value.trim() ? " “" + query.value.trim() + "”" : "") + ".");
+        resultsBar.innerHTML = "<p>" + esc(summary) + "</p>";
       }
       if (!blocks) {
         var clears = "";
@@ -1001,6 +1065,22 @@
       }
     }
 
+    function paintPills() {
+      var host = document.getElementById("active-pills");
+      if (!host) return;
+      var html = "";
+      subjectsOn.forEach(function (id) { html += pill("subject", id); });
+      levelsOn.forEach(function (id) { html += pill("level", id); });
+      lengthsOn.forEach(function (id) { html += pill("length", id); });
+      host.innerHTML = html;
+    }
+
+    function pill(kind, id) {
+      var label = labelFor(kind, id);
+      return '<button type="button" class="mini-filter" data-filter="' + kind + '" data-value="' + esc(id) + '">' +
+        esc(label) + ' <span aria-hidden="true">×</span><span class="visually-hidden">, remove filter</span></button>';
+    }
+
     function labelFor(kind, id) {
       var list = kind === "subject" ? data.map(function (track, index) { return { id: slugs[index], label: track.cat }; })
         : (kind === "level" ? levelOptions : lengthOptions);
@@ -1010,6 +1090,7 @@
     }
 
     function statusText() {
+      if (lastNote) return lastNote;
       if (!lastCount) return "No courses match.";
       return countSentence(lastCount, "course.", "courses.");
     }
@@ -1050,7 +1131,7 @@
           return;
         }
         var chipButton = event.target.closest("[data-filter]");
-        if (!chipButton) return;
+        if (!chipButton || chipButton.getAttribute("aria-disabled") === "true") return;
         applyFilter(chipButton.dataset.filter, chipButton.dataset.value);
       });
     }
@@ -1075,7 +1156,7 @@
         query.focus();
         return;
       }
-      var remove = event.target.closest(".empty [data-filter]");
+      var remove = event.target.closest(".empty [data-filter], .active-pills [data-filter]");
       if (remove) applyFilter(remove.dataset.filter, remove.dataset.value);
     });
     query.addEventListener("input", function () {
@@ -1118,11 +1199,86 @@
       }, { root: null, threshold: 0 });
       observer.observe(filters);
     }
+    var dialog = document.getElementById("filters-dialog");
+    var toggle = document.getElementById("filters-toggle");
+    function filtersAreNarrow() {
+      return window.matchMedia("(max-width: 640px)").matches;
+    }
+    function syncDialog() {
+      if (!dialog || !toggle) return;
+      if (!filtersAreNarrow()) {
+        filtersOpen = false;
+        dialog.hidden = false;
+        dialog.removeAttribute("role");
+        dialog.removeAttribute("aria-modal");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+        return;
+      }
+      dialog.hidden = !filtersOpen;
+      toggle.setAttribute("aria-expanded", filtersOpen ? "true" : "false");
+      if (filtersOpen) {
+        dialog.setAttribute("role", "dialog");
+        dialog.setAttribute("aria-modal", "true");
+        dialog.setAttribute("aria-labelledby", "filters-dialog-title");
+        document.body.style.overflow = "hidden";
+      } else {
+        dialog.removeAttribute("role");
+        dialog.removeAttribute("aria-modal");
+        document.body.style.overflow = "";
+      }
+    }
+    function openFilters() {
+      filtersOpen = true;
+      syncDialog();
+      var target = dialog.querySelector(".filters-close") || dialog.querySelector("button");
+      if (target) target.focus();
+    }
+    function closeFilters() {
+      if (!filtersOpen) return;
+      filtersOpen = false;
+      syncDialog();
+      toggle.focus();
+    }
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        if (filtersOpen) closeFilters();
+        else openFilters();
+      });
+    }
+    if (dialog) {
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog || event.target.closest("[data-action='close-filters']")) closeFilters();
+      });
+      dialog.addEventListener("keydown", function (event) {
+        if (!filtersOpen) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          closeFilters();
+          return;
+        }
+        if (event.key !== "Tab") return;
+        var items = dialog.querySelectorAll("button:not([disabled])");
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+    }
+    window.addEventListener("resize", syncDialog);
     var allItems = [];
     data.forEach(function (track) { allItems = allItems.concat(itemsOf(track)); });
     revealNewLegend(anyNew(allItems));
     readUrl();
     render();
+    syncDialog();
     booted = true;
     if (window.matchMedia("(pointer: fine)").matches && !window.matchMedia("(pointer: coarse)").matches) {
       query.focus({ preventScroll: true });

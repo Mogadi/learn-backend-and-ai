@@ -188,7 +188,7 @@ button, input { font: inherit; }
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  block-size: 380px;
+  min-block-size: 360px;
   border-block-end: 1px solid var(--ink);
 }
 
@@ -295,12 +295,14 @@ h1 {
 
 .hero-updated {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin: 0;
   color: var(--muted);
-  font: 500 12px/1.4 var(--mono);
+  font: 500 12px/1.45 var(--mono);
 }
+
+.hero-live { min-inline-size: 0; }
 
 .dot {
   inline-size: 7px;
@@ -328,7 +330,8 @@ h1 {
   min-inline-size: 0;
 }
 
-.subject-strip a:last-child { border-inline-end: 0; }
+.subject-strip a:first-child { padding-inline-start: 32px; }
+.subject-strip a:last-child { border-inline-end: 0; padding-inline-end: 32px; }
 .subject-strip a:hover { background: #edf3f5; }
 
 .strip-name {
@@ -1025,7 +1028,49 @@ p.row-title { padding-block: 10px; }
 }
 
 .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.chip[aria-disabled="true"] { opacity: .4; cursor: default; }
 .chip-n { margin-inline-start: 6px; }
+
+.filters-toggle,
+.filters-close {
+  display: none;
+}
+
+.filter-dialog-head { display: none; }
+.filter-dialog-title { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; }
+
+.active-pills { display: none; }
+
+.mini-filter {
+  min-block-size: 36px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  padding: 6px 10px;
+  font: 500 13px/1.2 var(--sans);
+  cursor: pointer;
+}
+
+.cat-line {
+  display: flex;
+  inline-size: 100%;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  min-block-size: 44px;
+  margin: 0;
+  padding: 10px 0;
+  border: 0;
+  border-block-end: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  text-align: start;
+  font: 600 18px/1.3 var(--display);
+  cursor: pointer;
+}
+
+.cat-line .group-count { font: 600 14px/1.3 var(--mono); color: #333; }
 
 .reset, .show-all {
   min-block-size: 44px;
@@ -1202,8 +1247,64 @@ body[data-page="search"] .page { padding-block-end: 64px; }
   .hero-art { display: none; }
   .hero h1 { font-size: 34px; }
   .subject-strip { grid-template-columns: 1fr 1fr; }
-  .subject-strip a { border-inline-end: 1px solid var(--ink); border-block-end: 1px solid var(--ink); }
+  .subject-strip a { border-inline-end: 1px solid var(--ink); border-block-end: 1px solid var(--ink); padding-inline: 16px; }
+  .subject-strip a:nth-child(odd) { padding-inline-start: 12px; }
   .subject-strip a:nth-child(2n) { border-inline-end: 0; }
+  .filters-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    margin-block-start: 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    font: 500 14px/1.2 var(--sans);
+    cursor: pointer;
+  }
+  #filters-dialog[hidden] { display: none !important; }
+  #filters-dialog:not([hidden]) {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: flex-end;
+    background: rgba(16, 16, 16, .45);
+  }
+  .filter-dialog-panel {
+    inline-size: 100%;
+    max-block-size: 85vh;
+    overflow: auto;
+    background: #fff;
+    padding: 8px 12px 20px;
+  }
+  .filter-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .filters-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 500 15px var(--sans);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .active-pills:not(:empty) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+  }
   .stats {
     display: flex;
     flex-wrap: wrap;
@@ -1247,7 +1348,7 @@ body[data-page="search"] .page { padding-block-end: 64px; }
   .hero-copy { padding-inline: 12px; }
   .hero h1 { font-size: 32px; }
   .subject-strip { grid-template-columns: 1fr; }
-  .subject-strip a { border-inline-end: 0; }
+  .subject-strip a { border-inline-end: 0; padding-inline: 12px; }
   .page-head { padding-inline: 12px; }
   .band-head { padding-inline: 12px; }
   .subject-main, .sheet, .toolbar, .site-footer { padding-inline: 12px; }
