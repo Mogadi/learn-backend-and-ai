@@ -19,7 +19,7 @@ The visual rules for this page, and for reusing them, are in the [style guide](d
 - Editorial black-and-white layout, with red `#E8432F` and steel blue used sparingly in the illustration and the difficulty key.
 - A short home page: one card per subject, with the course count and where that path starts. Counts are computed from the data, not typed in by hand.
 - One page per subject, at `/subjects/<slug>`. Adding a subject in `js/courses.js` adds the page. There is no new HTML file.
-- Category headings are Space Grotesk at a bold weight, with the course count and a divider. A side index jumps between them on a wide screen. On a narrow screen each category opens and closes from a button.
+- Category headings are Space Grotesk at a bold weight, with the course count and a divider. One category is open at a time. On a wide screen the side index opens the category you choose.
 - Search and the subject filters live on `/search`. What’s new has a short preview on the home page and the full list on `/whats-new`.
 - A newsletter mention without a checked URL stays in the list. It is not a link. A course added in the last 14 days is marked New.
 - The starter picks stay on the Back-end subject page.

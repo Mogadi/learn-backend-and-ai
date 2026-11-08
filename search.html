@@ -47,7 +47,7 @@
       <nav class="topnav" aria-label="Main navigation">
         <a href="/search" aria-current="page">Search</a>
         <a href="/whats-new">What's new</a>
-        <a class="pill" href="/#subjects">Start learning <span aria-hidden="true">↗</span></a>
+        <a class="pill" href="/#subjects">All subjects</a>
       </nav>
     </header>
     <main id="main" tabindex="-1">
@@ -59,15 +59,15 @@
           </ol>
         </nav>
         <h1>Search courses</h1>
-        <p class="sub">Every subject. Titles, descriptions, duration, level, and category. A course without a checked link stays in the list and is not clickable.</p>
+        <p class="sub">Every subject. Choose a subject or type a search to list courses. A course without a checked link stays in the list and is not clickable.</p>
         <div class="legend" role="group" aria-label="Course labels">
           <span class="badge b-beg">Beginner</span>
           <span class="badge b-int">Intermediate</span>
           <span class="badge b-adv">Advanced</span>
-          <span class="badge b-new">New</span>
+          <span class="badge b-new" id="legend-new" hidden>New</span>
           <span class="badge b-nl">Awaiting a link</span>
         </div>
-        <p class="new-note">New means the course was added in the last 14 days.</p>
+        <p class="new-note" id="new-note" hidden>New means the course was added in the last 14 days.</p>
       </header>
       <nav class="toolbar" id="toolbar" aria-label="Filter courses">
         <div class="toolbar-in">
@@ -79,7 +79,7 @@
               <path d="M10.5 10.5 14 14" stroke-linecap="round"/>
             </svg>
             <input type="search" id="q" name="q" placeholder="Search titles, duration, level…" autocomplete="off" spellcheck="false" aria-controls="content" aria-describedby="search-hint">
-            <p id="search-hint" class="visually-hidden">Searches titles, descriptions, duration, level, group, and subject within the selected filter. Escape clears the search.</p>
+            <p id="search-hint" class="visually-hidden">Results stay hidden until you type or choose a subject. Search checks titles, descriptions, duration, level, group, and subject. Escape clears the search.</p>
           </div>
         </div>
       </nav>

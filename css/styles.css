@@ -20,6 +20,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+[hidden] { display: none !important; }
+
 html { scroll-padding-block-start: 20px; }
 
 body {
@@ -297,6 +299,9 @@ h1 {
 
 .stat dd { margin: 0; font-size: 13px; line-height: 1.35; }
 .stat a { color: inherit; }
+.stat-secondary dt,
+.stat-secondary dd { color: var(--muted); }
+.stat-secondary dt { font-size: 22px; font-weight: 500; }
 
 .band-head { padding: 32px 32px 20px; }
 
@@ -557,11 +562,12 @@ h3.subject-name {
 .group-head {
   position: relative;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-block-start: 28px;
-  padding: 0 0 12px;
+  min-block-size: 48px;
+  padding: 12px 0;
   border-block-end: 1px solid var(--ink);
 }
 
@@ -572,6 +578,7 @@ h3.subject-name {
   gap: 8px 16px;
   margin: 0;
   min-inline-size: 0;
+  padding-inline-end: 36px;
 }
 
 .group-title {
@@ -586,13 +593,45 @@ h3.subject-name {
 
 .group-count {
   font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   letter-spacing: .02em;
-  color: var(--muted);
+  color: #333;
 }
 
-.group-toggle { display: none; }
+.group:not(.is-open) .group-panel { display: none; }
+
+.group-toggle {
+  display: block;
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.group-toggle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.chevron {
+  position: absolute;
+  inset-inline-end: 4px;
+  inset-block-start: 50%;
+  inline-size: 9px;
+  block-size: 9px;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+}
+
+.group.is-open .chevron { transform: translateY(-20%) rotate(-135deg); }
 
 .rows {
   list-style: none;
@@ -610,10 +649,7 @@ h3.subject-name {
   min-inline-size: 0;
 }
 
-.row.is-awaiting {
-  background: #f5f5f5;
-  padding-inline: 12px;
-}
+.row.is-awaiting { background: #f5f5f5; }
 
 .row-main { min-inline-size: 0; }
 
@@ -873,6 +909,31 @@ p.row-title { padding-block: 10px; }
 
 .empty p { margin: 0 0 8px; max-inline-size: 62ch; }
 
+.start-subjects {
+  list-style: none;
+  margin: 16px 0 28px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block-start: 1px solid var(--ink);
+  border-inline-start: 1px solid var(--ink);
+}
+
+.start-subjects a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  min-block-size: 48px;
+  padding: 12px 16px;
+  text-decoration: none;
+  border-inline-end: 1px solid var(--ink);
+  border-block-end: 1px solid var(--ink);
+  min-inline-size: 0;
+}
+
+.start-subjects a:hover { background: #edf3f5; }
+
 .back-top { margin: 28px 0 0; }
 .back-top a {
   display: inline-flex;
@@ -965,37 +1026,8 @@ body[data-page="search"] .page { padding-block-end: 64px; }
 @media (max-width: 800px) {
   .subject-layout { grid-template-columns: minmax(0, 1fr); }
   .side-index { display: none; }
-  .group:not(.is-open) .group-panel { display: none; }
   .group-title, .result-title { font-size: 23px; }
-  .group-head h2 { padding-inline-end: 32px; }
-  .group-toggle {
-    display: block;
-    position: absolute;
-    inset: 0;
-    inline-size: 100%;
-    block-size: 100%;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .group-toggle:focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: -3px;
-  }
-  .chevron {
-    position: absolute;
-    inset-inline-end: 4px;
-    inset-block-start: 50%;
-    inline-size: 9px;
-    block-size: 9px;
-    border-inline-end: 2px solid currentColor;
-    border-block-end: 2px solid currentColor;
-    transform: translateY(-70%) rotate(45deg);
-  }
-  .group.is-open .chevron { transform: translateY(-20%) rotate(-135deg); }
+  .start-subjects { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 640px) {
@@ -1062,7 +1094,7 @@ body[data-page="search"] .page { padding-block-end: 64px; }
     border: 0;
   }
   .stat + .stat { border: 0; }
-  .stat dt { font-size: 16px; }
+  .stat dt, .stat-secondary dt { font-size: 16px; }
   .stat dd { font-size: 13px; }
   .band-head, .page-head { padding: 24px 16px 16px; }
   .page-head h1 { font-size: 34px; max-inline-size: none; }

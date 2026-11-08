@@ -225,13 +225,28 @@
       esc(current) + "</li></ol></nav>";
   }
 
-  function legendHtml() {
+  function anyNew(items) {
+    var i;
+    for (i = 0; i < items.length; i += 1) {
+      if (isNew(items[i][5])) return true;
+    }
+    return false;
+  }
+
+  function legendHtml(showNew) {
     return '<div class="legend" role="group" aria-label="Course labels">' +
       '<span class="badge b-beg">Beginner</span>' +
       '<span class="badge b-int">Intermediate</span>' +
       '<span class="badge b-adv">Advanced</span>' +
-      '<span class="badge b-new">New</span>' +
+      (showNew ? '<span class="badge b-new">New</span>' : "") +
       '<span class="badge b-nl">Awaiting a link</span></div>';
+  }
+
+  function revealNewLegend(show) {
+    var badge = document.getElementById("legend-new");
+    var note = document.getElementById("new-note");
+    if (badge) badge.hidden = !show;
+    if (note) note.hidden = !show;
   }
 
   function subjectCard(track, index) {
@@ -369,10 +384,12 @@
 
   function renderPicks() {
     if (!picks.length) return "";
-    var heading = picks.length === 5 ? "Top 5 for a back-end beginner" : "Starter picks";
+    var note = picks.length === 5
+      ? "Start with these five, in this order: the overview, the command line, APIs, databases, then Docker. The categories below are the full list, and they begin in a different place."
+      : "A short route for a back-end beginner. The categories below are the full list.";
     return '<section id="starter-picks" aria-labelledby="starter-heading"><div class="section-head">' +
-      '<h2 id="starter-heading">' + esc(heading) + "</h2>" +
-      '<p class="note">A starter route for back-end, separate from the catalogue. The order is the overview, the command line, APIs, databases, then Docker. The Back-end subject is the wider list: Foundations starts with the command line and comes before that overview. These are two ways through the same courses, not one syllabus of prerequisites.</p></div>' +
+      '<h2 id="starter-heading">Start here</h2>' +
+      '<p class="note">' + esc(note) + "</p></div>" +
       '<div class="picks">' + picks.map(function (pick, index) {
         var url = safeUrl(pick[2]);
         var body = '<span class="ordinal" aria-hidden="true">' + pad(index + 1) + "</span><b>" + esc(pick[0]) +
@@ -410,7 +427,7 @@
       root.innerHTML = '<header class="page-head">' + crumb("Not found") +
         "<h1>This page is not on the path.</h1>" +
         "<p class=\"sub\">That subject is not in the catalogue. Pick one that is.</p>" +
-        '<p class="actions"><a class="pill" href="/">Back to the guide <span aria-hidden="true">↗</span></a></p></header>' +
+        '<p class="actions"><a class="pill" href="/">Back to the guide</a></p></header>' +
         '<ul class="subject-grid" id="subject-grid"></ul>';
       subjectCards(document.getElementById("subject-grid"));
       return;
@@ -433,14 +450,15 @@
     }
     var hashed = hash && ids.indexOf(hash) !== -1;
     var showPicks = found.index === picksIndex() && picks.length;
+    var showFresh = anyNew(itemsOf(track));
     var indexLinks = "";
     if (showPicks) {
-      indexLinks += '<li><a href="#starter-picks">Starter picks <span class="idx-n">' + picks.length + "</span></a></li>";
+      indexLinks += '<li><a href="#starter-picks">Start here <span class="idx-n">' + picks.length + "</span></a></li>";
     }
     var groupHtml = groups.map(function (group, index) {
       var id = ids[index];
       var items = (group.items || []).filter(function (item) { return item && item[0]; });
-      var open = hashed ? id === hash : index === 0;
+      var open = hashed ? id === hash : (!showPicks && index === 0);
       indexLinks += '<li><a href="#' + id + '">' + esc(group.name) +
         ' <span class="idx-n">' + items.length + "</span></a></li>";
       var rows = items.map(function (item) { return rowHtml(item); }).join("");
@@ -465,8 +483,8 @@
     root.innerHTML = '<header class="page-head">' + crumb(track.cat) +
       "<h1>" + esc(track.cat) + "</h1>" +
       (track.note ? '<p class="sub">' + esc(track.note) + "</p>" : "") +
-      '<p class="tally">' + tallyText + "</p>" + legendHtml() +
-      '<p class="new-note">New means the course was added in the last 14 days.</p></header>' +
+      '<p class="tally">' + tallyText + "</p>" + legendHtml(showFresh) +
+      (showFresh ? '<p class="new-note">New means the course was added in the last 14 days.</p>' : "") + "</header>" +
       '<div class="subject-layout"><nav class="side-index" aria-label="Categories"><p class="kicker">On this page</p><ol>' +
       indexLinks + "</ol></nav><div class=\"subject-main\" id=\"categories\">" +
       (showPicks ? renderPicks() : "") + groupHtml +
@@ -476,39 +494,36 @@
     bindSpy();
   }
 
+  function setOnlyOpen(group) {
+    [].forEach.call(document.querySelectorAll(".group"), function (other) {
+      other.classList.toggle("is-open", other === group);
+    });
+    syncExpanded();
+  }
+
   function bindGroups() {
     var main = document.querySelector(".subject-main");
     if (!main) return;
     main.addEventListener("click", function (event) {
       var button = event.target.closest(".group-toggle");
       if (!button) return;
-      if (!window.matchMedia("(max-width: 800px)").matches) return;
       var group = button.closest(".group");
       if (!group) return;
-      group.classList.toggle("is-open");
-      syncExpanded();
+      setOnlyOpen(group.classList.contains("is-open") ? null : group);
     });
-    syncExpanded();
-    var mobileMq = window.matchMedia("(max-width: 800px)");
-    function onMode(event) {
-      if (!event.matches) {
-        syncExpanded();
-        return;
-      }
-      var groups = [].slice.call(document.querySelectorAll(".group"));
-      if (!groups.length) return;
-      var current = null;
-      groups.forEach(function (group) {
-        var rect = group.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.45 && rect.bottom > 64) current = group;
+    var index = document.querySelector(".side-index");
+    if (index) {
+      index.addEventListener("click", function (event) {
+        var link = event.target.closest("a");
+        if (!link) return;
+        var href = link.getAttribute("href") || "";
+        if (href.charAt(0) !== "#") return;
+        var group = document.getElementById(href.slice(1));
+        if (!group || !group.classList.contains("group")) return;
+        setOnlyOpen(group);
       });
-      if (!current) current = groups[0];
-      groups.forEach(function (group) {
-        group.classList.toggle("is-open", group === current);
-      });
-      syncExpanded();
     }
-    if (mobileMq.addEventListener) mobileMq.addEventListener("change", onMode);
+    syncExpanded();
     window.addEventListener("hashchange", function () {
       var id = "";
       try {
@@ -518,18 +533,15 @@
       }
       var target = id ? document.getElementById(id) : null;
       var group = target && (target.classList.contains("group") ? target : target.closest(".group"));
-      if (group) group.classList.add("is-open");
-      syncExpanded();
+      if (group && group.classList.contains("group")) setOnlyOpen(group);
     });
   }
 
   function syncExpanded() {
-    var mobile = window.matchMedia("(max-width: 800px)").matches;
     [].forEach.call(document.querySelectorAll(".group"), function (group) {
       var button = group.querySelector(".group-toggle");
       if (!button) return;
-      var open = !mobile || group.classList.contains("is-open");
-      button.setAttribute("aria-expanded", open ? "true" : "false");
+      button.setAttribute("aria-expanded", group.classList.contains("is-open") ? "true" : "false");
     });
   }
 
@@ -611,7 +623,14 @@
       return current === "All" ? "All subjects" : current;
     }
 
+    function idle() {
+      return !query.value.trim() && current === "All";
+    }
+
     function summaryText(term) {
+      if (!term && current === "All") {
+        return countSentence(data.length, "subject", "subjects") + ". Choose one, or type a search, to list courses.";
+      }
       var text = scopeLabel() + " · " +
         countSentence(lastLinked, "course you can open", "courses you can open") + " · " +
         countSentence(lastMention, "awaiting a link", "awaiting a link");
@@ -620,6 +639,7 @@
     }
 
     function statusText(term) {
+      if (!term && current === "All") return "Choose a subject or type a search. The course list is hidden.";
       var parts = [scopeLabel() + "."];
       if (term) parts.push("Search “" + term + "”.");
       if (!lastLinked && !lastMention) parts.push("No matches.");
@@ -628,6 +648,35 @@
         parts.push(countSentence(lastMention, "awaiting a link.", "awaiting a link."));
       }
       return parts.join(" ");
+    }
+
+    function startHtml() {
+      var subjects = data.map(function (track, index) {
+        var counts = tally(itemsOf(track));
+        return '<li><a href="/subjects/' + slugs[index] + '"><span>' + esc(track.cat) +
+          '</span><span class="idx-n">' + counts.total + "</span></a></li>";
+      }).join("");
+      var suggestions = "";
+      data.forEach(function (track, index) {
+        var picked = null;
+        (track.groups || []).some(function (group) {
+          return (group.items || []).some(function (item) {
+            if (!item || !item[0]) return false;
+            if (!picked) picked = item;
+            if (safeUrl(item[4])) {
+              picked = item;
+              return true;
+            }
+            return false;
+          });
+        });
+        if (!picked) return;
+        suggestions += rowHtml(picked, { label: track.cat, href: "/subjects/" + slugs[index] });
+      });
+      return '<div class="search-start"><p class="sub">The full list stays hidden until you choose a subject or type a search.</p>' +
+        '<ul class="start-subjects">' + subjects + "</ul>" +
+        '<h2 class="result-title">One course from each subject</h2><ul class="rows">' +
+        suggestions + "</ul></div>";
     }
 
     function actionButtons(term) {
@@ -640,6 +689,13 @@
     function render() {
       var term = query.value.trim().toLowerCase();
       var raw = query.value.trim();
+      if (!raw && current === "All") {
+        lastLinked = 0;
+        lastMention = 0;
+        if (resultsBar) resultsBar.innerHTML = "<p>" + esc(summaryText("")) + "</p>";
+        content.innerHTML = startHtml();
+        return;
+      }
       var linkedCount = 0;
       var mentionCount = 0;
       var html = data.filter(function (track) {
@@ -780,9 +836,13 @@
       observer.observe(toolbar);
     }
 
+    var allItems = [];
+    data.forEach(function (track) { allItems = allItems.concat(itemsOf(track)); });
+    revealNewLegend(anyNew(allItems));
     render();
     writeUrl();
     booted = true;
+    if (!idle()) announce(true);
   }
 
   function renderUpdates() {
