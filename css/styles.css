@@ -1039,7 +1039,12 @@ p.row-title { padding-block: 10px; }
 .filter-dialog-head { display: none; }
 .filter-dialog-title { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; }
 
-.active-pills { display: none; }
+.active-pills:not(:empty) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
 
 .mini-filter {
   min-block-size: 36px;

@@ -1108,14 +1108,28 @@
       else announceTimer = window.setTimeout(speak, 400);
     }
 
+    function focusKept(node) {
+      if (node) node.focus({ preventScroll: true });
+    }
+
     function applyFilter(kind, id) {
       var list = kind === "subject" ? subjectsOn : (kind === "level" ? levelsOn : lengthsOn);
       toggle(list, id);
       render();
       announce(true);
       writeUrl(true);
-      var again = document.querySelector('[data-filter="' + kind + '"][data-value="' + id + '"]');
-      if (again) again.focus();
+      var again = document.querySelector('#filters [data-filter="' + kind + '"][data-value="' + id + '"]');
+      if (again) focusKept(again);
+    }
+
+    function focusAfterPill(index) {
+      var next = document.querySelectorAll("#active-pills .mini-filter");
+      if (next.length) {
+        focusKept(next[Math.min(index, next.length - 1)]);
+        return;
+      }
+      if (filtersAreNarrow() && filtersBtn) focusKept(filtersBtn);
+      else focusKept(document.querySelector("#filters .chip"));
     }
 
     if (filters) {
@@ -1157,7 +1171,15 @@
         return;
       }
       var remove = event.target.closest(".empty [data-filter], .active-pills [data-filter]");
-      if (remove) applyFilter(remove.dataset.filter, remove.dataset.value);
+      if (remove) {
+        var fromPill = remove.classList.contains("mini-filter");
+        var pills = document.querySelectorAll("#active-pills .mini-filter");
+        var index = 0;
+        var i;
+        for (i = 0; i < pills.length; i += 1) if (pills[i] === remove) index = i;
+        applyFilter(remove.dataset.filter, remove.dataset.value);
+        if (fromPill) focusAfterPill(index);
+      }
     });
     query.addEventListener("input", function () {
       render();
@@ -1235,13 +1257,13 @@
       filtersOpen = true;
       syncDialog();
       var target = dialog.querySelector(".filters-close") || dialog.querySelector("button");
-      if (target) target.focus();
+      if (target) target.focus({ preventScroll: true });
     }
     function closeFilters() {
       if (!filtersOpen) return;
       filtersOpen = false;
       syncDialog();
-      filtersBtn.focus();
+      filtersBtn.focus({ preventScroll: true });
     }
     if (filtersBtn) {
       filtersBtn.addEventListener("click", function () {
