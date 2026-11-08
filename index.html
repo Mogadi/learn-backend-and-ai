@@ -26,153 +26,86 @@
   <meta name="twitter:description" content="A free study map of back-end and beginner AI courses picked by Quincy Larson in his weekly freeCodeCamp emails. Mueen updates it when a new email arrives. Every link is the original free source.">
   <meta name="twitter:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
   <meta name="twitter:image:alt" content="A free path to back-end and AI. A study map of freeCodeCamp resources picked by Quincy Larson.">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" href="assets/favicon-32x32.png" type="image/png" sizes="32x32">
-  <link rel="icon" href="assets/favicon-16x16.png" type="image/png" sizes="16x16">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/assets/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/assets/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="js/courses.js" defer></script>
-  <script src="js/main.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/courses.js" defer></script>
+  <script src="/js/main.js" defer></script>
 </head>
-<body>
-  <a class="skip" href="#main">Skip to courses</a>
+<body data-page="home">
+  <a class="skip" href="#main">Skip to content</a>
   <div class="page">
-    <header class="site-header">
-      <a class="wordmark" href="#home" aria-label="Quincy's Course Picks home">// Study path</a>
-      <nav class="topnav" aria-label="Main navigation">
-        <a class="nav-guide" href="#guide">The guide</a>
-        <a class="nav-courses" href="#main">Courses</a>
-        <a class="pill" href="#main">Start learning <span aria-hidden="true">↗</span></a>
-      </nav>
+    <header class="site-header" id="top">
+      <a class="wordmark" href="/" aria-current="page" aria-label="Study path home">// Study path</a>
+      <div class="header-tools">
+        <form class="header-search" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="header-q">Search courses</label>
+          <input id="header-q" type="search" name="q" placeholder="Search" autocomplete="off" enterkeyhint="search">
+        </form>
+        <a class="icon-btn" href="/search" aria-label="Search courses">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14" stroke-linecap="round"/></svg>
+        </a>
+        <nav class="topnav" aria-label="Main navigation">
+          <a href="/whats-new">What's new</a>
+        </nav>
+      </div>
     </header>
-    <main id="home">
+    <main id="main" tabindex="-1">
       <section class="hero" aria-labelledby="hero-heading">
-        <p class="kicker">What is this?</p>
-        <div class="hero-title">
-          <span class="hero-star" aria-hidden="true">✧</span>
+        <div class="hero-copy">
+          <p class="kicker">Study path · Back-end + AI</p>
           <h1 id="hero-heading">A free path to <span class="nowrap">back-end</span> &amp; AI.</h1>
-        </div>
-        <div class="about">
-          <p class="hero-sub">A free study map of courses, tutorials, and handbooks picked by Quincy Larson, founder of freeCodeCamp, in his weekly emails. It focuses on back-end development and beginner AI, especially integrating AI into apps and back-ends. Every link goes straight to the original free source.</p>
-          <p class="live-note" id="live-note">
-            <span class="live-mark" aria-hidden="true"></span>
-            <span class="visually-hidden">Updated. </span>
-            <span class="live-line">Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates this site every time a new email arrives.</span>
-            <span class="live-date" id="last-updated"></span>
-          </p>
-        </div>
-        <div class="hero-bottom">
-          <a class="pill start-learning" href="#main">Start learning <span aria-hidden="true">↗</span></a>
+          <p class="hero-sub">A free study map of back-end and beginner AI courses picked by Quincy Larson.</p>
+          <div class="hero-actions">
+            <a class="pill" href="#subjects">Start learning</a>
+            <a class="hero-search-link" id="course-search" href="/search">or search courses</a>
+          </div>
+          <p class="hero-updated"><span class="dot" aria-hidden="true"></span><span class="hero-live">Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates this site every time a new email arrives. <span id="last-updated"></span></span></p>
         </div>
         <div class="hero-art" aria-hidden="true">
-          <svg class="art-wide" viewBox="0 0 360 84" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-            <rect x="0" y="2" width="214" height="80" rx="10" fill="#101010"/>
-            <circle cx="18" cy="20" r="5" fill="#e8432f"/><circle cx="34" cy="20" r="5" fill="#d4e5e9"/><circle cx="50" cy="20" r="5" fill="#5b97b4"/>
-            <text x="16" y="52" font-family="ui-monospace,monospace" font-size="18" fill="#ffffff"><tspan fill="#e8432f">$</tspan> back-end + AI</text>
-            <g transform="translate(228 18)">
-              <path d="M0 10V48C0 56 44 56 44 48V10" fill="#5b97b4" stroke="#101010" stroke-width="1.4"/>
-              <path d="M0 24C0 32 44 32 44 24M0 36C0 44 44 44 44 36" fill="none" stroke="#101010" stroke-width="1.4"/>
-              <ellipse cx="22" cy="10" rx="22" ry="8" fill="#d4e5e9" stroke="#101010" stroke-width="1.4"/>
+          <svg viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="16" y="28" width="300" height="150" rx="8" fill="#101010"/>
+            <text x="32" y="108" font-family="ui-monospace,monospace" font-size="15" fill="#ffffff"><tspan fill="#e8432f">$</tspan> back-end → databases → AI<tspan fill="#e8432f"> ▌</tspan></text>
+            <g transform="translate(348 36)">
+              <path d="M0 16V78C0 90 86 90 86 78V16" fill="#5b97b4" stroke="#101010" stroke-width="1.2"/>
+              <path d="M0 38C0 50 86 50 86 38M0 58C0 70 86 70 86 58" fill="none" stroke="#101010" stroke-width="1.2"/>
+              <ellipse cx="43" cy="16" rx="43" ry="12" fill="#d4e5e9" stroke="#101010" stroke-width="1.2"/>
             </g>
-            <g transform="translate(292 8)">
-              <path d="M24 0 48 8V28C48 44 36 54 24 60 12 54 0 44 0 28V8Z" fill="#e8432f"/>
-              <path d="M14 30 22 38 36 20" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <g stroke="#101010" stroke-width="1.2" fill="none">
+              <path d="M360 150 420 130M360 190 420 160M360 230 420 200M420 130 490 150M420 160 490 150M420 200 490 190M420 160 490 190"/>
             </g>
+            <circle cx="360" cy="150" r="8" fill="#101010"/>
+            <circle cx="360" cy="190" r="8" fill="#5b97b4"/>
+            <circle cx="360" cy="230" r="8" fill="#101010"/>
+            <circle cx="420" cy="130" r="8" fill="#5b97b4"/>
+            <circle cx="420" cy="160" r="8" fill="#101010"/>
+            <circle cx="420" cy="200" r="8" fill="#5b97b4"/>
+            <circle cx="490" cy="150" r="10" fill="#101010"/>
+            <circle cx="490" cy="190" r="10" fill="#5b97b4"/>
           </svg>
-          <svg class="art-full" viewBox="0 0 440 480" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-<rect width="440" height="480" fill="white"/>
-<path d="M330 0C282 48 300 90 338 116C282 140 280 190 330 214C372 234 396 252 400 290L470 240V0Z" fill="#d4e5e9"/>
-<g fill="none" stroke="#101010" stroke-width="1.2" stroke-dasharray="3 5"><path d="M110 228V300"/><path d="M262 228C262 270 300 270 300 300"/></g>
-<g transform="rotate(-4 190 135)">
-<rect x="36" y="58" width="310" height="170" rx="12" fill="#101010"/>
-<circle cx="60" cy="80" r="6" fill="#e8432f"/><circle cx="80" cy="80" r="6" fill="#d4e5e9"/><circle cx="100" cy="80" r="6" fill="#5b97b4"/>
-<g font-family="'DM Mono','JetBrains Mono',ui-monospace,monospace" font-size="13" fill="white">
-<text x="56" y="118"><tspan fill="#e8432f">$</tspan> python app.py</text>
-<text x="56" y="142"><tspan fill="#5b97b4">GET</tspan> /api/courses <tspan fill="#d4e5e9">200</tspan></text>
-<text x="56" y="166"><tspan fill="#5b97b4">POST</tspan> /embed <tspan fill="#d4e5e9">201</tspan></text>
-<text x="56" y="190"><tspan fill="#e8432f">&gt;</tspan> learning back-end + AI<tspan fill="#e8432f">▌</tspan></text>
-</g>
-</g>
-<g transform="translate(60 300)">
-<path d="M0 18V96C0 110 100 110 100 96V18" fill="#5b97b4" stroke="#101010" stroke-width="1.2"/>
-<path d="M0 46C0 60 100 60 100 46M0 72C0 86 100 86 100 72" fill="none" stroke="#101010" stroke-width="1.2"/>
-<ellipse cx="50" cy="18" rx="50" ry="14" fill="#d4e5e9" stroke="#101010" stroke-width="1.2"/>
-</g>
-<g stroke="#101010" stroke-width="1.2">
-<path d="M250 320 330 300M250 320 330 350M250 320 330 400M250 380 330 300M250 380 330 350M250 380 330 400M250 440 330 350M250 440 330 400M330 300 405 340M330 350 405 340M330 400 405 340M330 350 405 410M330 400 405 410M250 440 330 300"/>
-</g>
-<circle cx="250" cy="320" r="11" fill="#101010"/><circle cx="250" cy="380" r="11" fill="#e8432f"/><circle cx="250" cy="440" r="11" fill="#101010"/>
-<circle cx="330" cy="300" r="11" fill="#5b97b4"/><circle cx="330" cy="350" r="11" fill="#101010"/><circle cx="330" cy="400" r="11" fill="#5b97b4"/>
-<circle cx="405" cy="340" r="13" fill="#e8432f"/><circle cx="405" cy="410" r="13" fill="#101010"/>
-<g transform="translate(372 120)">
-<path d="M28 0 56 10V34C56 52 44 64 28 72C12 64 0 52 0 34V10Z" fill="#e8432f"/>
-<path d="M16 36 25 45 41 26" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<path d="M0 420C40 430 50 470 40 480H0Z" fill="#e8432f"/>
-<text x="400" y="256" font-family="'Space Grotesk',sans-serif" font-size="34" fill="#101010" text-anchor="middle">✳</text>
-</svg>
         </div>
       </section>
-      <div class="stats" role="region" aria-label="Study guide at a glance">
-        <dl class="stat"><dt id="stat-linked">—</dt><dd>Courses you can open</dd></dl>
-        <dl class="stat"><dt id="stat-mentions">—</dt><dd>Mentions awaiting a link</dd></dl>
-        <dl class="stat"><dt id="stat-tracks">—</dt><dd>Study tracks</dd></dl>
-        <dl class="stat"><dt id="stat-picks">—</dt><dd>Starter picks</dd></dl>
-      </div>
-      <section class="library" id="main" tabindex="-1" aria-labelledby="library-heading">
-        <nav class="toolbar" id="toolbar" aria-label="Filter courses">
-          <div class="wrap toolbar-in">
-            <div class="tabs" id="tabs"></div>
-            <div class="search">
-              <label for="q">Search courses</label>
-              <svg class="search-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="7" cy="7" r="4.5"/>
-                <path d="M10.5 10.5 14 14" stroke-linecap="round"/>
-              </svg>
-              <input type="search" id="q" name="q" placeholder="Search titles, duration, level…" autocomplete="off" spellcheck="false" aria-controls="content" aria-describedby="search-hint">
-              <p id="search-hint" class="visually-hidden">Searches titles, descriptions, duration, level, group, and track within the selected filter. Escape clears the search.</p>
-            </div>
-          </div>
-        </nav>
-        <div class="results-bar" id="results-bar"></div>
-        <p id="results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
-        <div class="library-intro" id="guide">
-          <div>
-            <p class="kicker">// The collection</p>
-            <h2 id="library-heading">Quincy's Course Picks</h2>
-            <p class="sub">Select a course card to open it on freecodecamp.org in a new tab. Newsletter mentions are listed after those cards. They do not have a checked link yet, so they are not clickable.</p>
-          </div>
-          <div class="legend" role="group" aria-label="Difficulty legend">
-            <span class="badge b-beg">Beginner</span>
-            <span class="badge b-int">Intermediate</span>
-            <span class="badge b-adv">Advanced</span>
-            <span class="badge b-nl">Awaiting a link</span>
-          </div>
+      <nav class="subject-strip" id="subjects" aria-label="Subjects"></nav>
+      <section id="whats-new" aria-labelledby="updates-heading">
+        <div class="band-head">
+          <p class="kicker">Changelog</p>
+          <h2 id="updates-heading">What's new</h2>
+          <p class="sub">The latest emails. Newest first.</p>
         </div>
-        <section class="updates" id="whats-new" aria-labelledby="updates-heading">
-          <h2 id="updates-heading">What’s new</h2>
-          <ol class="update-list" id="update-list"></ol>
-        </section>
-        <section id="top5" aria-labelledby="top5-heading">
-          <div class="section-head">
-            <h2 id="top5-heading">Top 5 for a back-end beginner</h2>
-            <p class="note">A starter route for back-end, separate from the catalogue. The order is the overview, the command line, APIs, databases, then Docker. The Back-end track is the wider list: Foundations starts with the command line and comes before that overview. These are two ways through the same courses, not one syllabus of prerequisites.</p>
-          </div>
-          <div class="picks" id="picks"></div>
-        </section>
-        <noscript>
-          <p class="note empty">The course list is assembled in the browser. Enable JavaScript to search and filter it.</p>
-        </noscript>
-        <div id="content"></div>
+        <div class="sheet">
+          <ol class="update-list" id="update-preview"></ol>
+          <p class="more"><a href="/whats-new">Full changelog</a></p>
+        </div>
       </section>
     </main>
     <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
   </div>
-  <a class="jump-filters" id="jump-filters" href="#toolbar" hidden>Search and filters</a>
 </body>
 </html>

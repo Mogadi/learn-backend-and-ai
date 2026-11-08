@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Search courses · Quincy's Course Picks</title>
+  <meta name="description" content="Search every subject in Quincy's course picks. Filter by subject. Matches titles, descriptions, duration, level, and category.">
+  <meta name="author" content="Muhammad Osama">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-title" content="Study path">
+  <link rel="canonical" href="https://learn-backend-and-ai.vercel.app/search">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Study path">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://learn-backend-and-ai.vercel.app/search">
+  <meta property="og:title" content="Search courses · Quincy's Course Picks">
+  <meta property="og:description" content="Search every subject in Quincy's course picks. Filter by subject. Matches titles, descriptions, duration, level, and category.">
+  <meta property="og:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A free path to back-end and AI. A study map of freeCodeCamp resources picked by Quincy Larson.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Search courses · Quincy's Course Picks">
+  <meta name="twitter:description" content="Search every subject in Quincy's course picks. Filter by subject. Matches titles, descriptions, duration, level, and category.">
+  <meta name="twitter:image" content="https://learn-backend-and-ai.vercel.app/assets/og.png">
+  <meta name="twitter:image:alt" content="A free path to back-end and AI. A study map of freeCodeCamp resources picked by Quincy Larson.">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/assets/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/assets/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/courses.js" defer></script>
+  <script src="/js/main.js" defer></script>
+</head>
+<body data-page="search">
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="page">
+    <header class="site-header" id="top">
+      <a class="wordmark" href="/" aria-label="Study path home">// Study path</a>
+      <div class="header-tools">
+        <form class="header-search" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="header-q">Search courses</label>
+          <input id="header-q" type="search" name="q" placeholder="Search" autocomplete="off" enterkeyhint="search">
+        </form>
+        <a class="icon-btn" href="/search" aria-label="Search courses">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14" stroke-linecap="round"/></svg>
+        </a>
+        <nav class="topnav" aria-label="Main navigation">
+          <a href="/whats-new">What's new</a>
+          <a class="pill" href="/#subjects">All subjects</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <header class="page-head">
+        <nav class="crumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Study path</a></li>
+            <li aria-current="page">Search</li>
+          </ol>
+        </nav>
+        <h1>Search courses</h1>
+        <form class="big-search" id="search-form" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="q">Search courses</label>
+          <input type="search" id="q" name="q" placeholder="Search courses" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-controls="content" aria-describedby="search-hint">
+          <p id="search-hint" class="visually-hidden">Matches every word, in any order. A word of five or more letters may include one typo. If nothing matches every word, courses that match any word are shown. Escape clears the text.</p>
+        </form>
+        <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters-dialog">Filters <span id="filters-count">(0)</span></button>
+        <div id="filters-dialog" hidden>
+          <div class="filter-dialog-panel">
+            <div class="filter-dialog-head">
+              <p id="filters-dialog-title" class="filter-dialog-title">Filters</p>
+              <button type="button" class="filters-close" data-action="close-filters">Close</button>
+            </div>
+            <div class="filter-row" id="filters"></div>
+          </div>
+        </div>
+        <div class="legend" role="group" aria-label="Course labels">
+          <span class="badge b-beg">Beginner</span>
+          <span class="badge b-int">Intermediate</span>
+          <span class="badge b-adv">Advanced</span>
+          <span class="badge b-new" id="legend-new" hidden>New</span>
+          <span class="badge b-nl">Awaiting a link</span>
+        </div>
+        <p class="new-note" id="new-note" hidden>New means the course was added in the last 14 days.</p>
+      </header>
+      <div class="sheet">
+        <div class="active-pills" id="active-pills"></div>
+        <div class="results-bar" id="results-bar"></div>
+        <p id="results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+        <noscript>
+          <p class="note empty">Search runs in the browser. Enable JavaScript to filter the catalogue.</p>
+        </noscript>
+        <div id="content"></div>
+      </div>
+    </main>
+    <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
+  </div>
+  <a class="jump-filters" id="jump-filters" href="#search-form" hidden>Search and filters</a>
+</body>
+</html>

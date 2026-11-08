@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/subjects", "destination": "/subject" },
+    { "source": "/subjects/:slug", "destination": "/subject" }
+  ]
+}
