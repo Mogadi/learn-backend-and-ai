@@ -52,28 +52,39 @@
     </header>
     <main id="home">
       <section class="hero" aria-labelledby="hero-heading">
-        <div class="hero-copy">
-          <p class="kicker">What is this?</p>
-          <div class="hero-title">
-            <span class="hero-star" aria-hidden="true">✧</span>
-            <h1 id="hero-heading">A free path to <span class="nowrap">back-end</span> &amp; AI.</h1>
-          </div>
-          <div class="about">
-            <p class="hero-sub">A free study map of courses, tutorials, and handbooks picked by Quincy Larson, founder of freeCodeCamp, in his weekly emails. It focuses on back-end development and beginner AI, especially integrating AI into apps and back-ends. Every link goes straight to the original free source.</p>
-            <p class="live-note" id="live-note">
-              <span class="live-mark" aria-hidden="true"></span>
-              <span class="visually-hidden">Updated. </span>
-              <span class="live-line">Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates this site every time a new email arrives.</span>
-              <span class="live-date" id="last-updated"></span>
-            </p>
-          </div>
-          <div class="hero-bottom">
-            <a class="pill start-learning" href="#main">Start learning <span aria-hidden="true">↗</span></a>
-            <p class="hero-aside">A little structure.<br>A lot to discover.</p>
-          </div>
+        <p class="kicker">What is this?</p>
+        <div class="hero-title">
+          <span class="hero-star" aria-hidden="true">✧</span>
+          <h1 id="hero-heading">A free path to <span class="nowrap">back-end</span> &amp; AI.</h1>
+        </div>
+        <div class="about">
+          <p class="hero-sub">A free study map of courses, tutorials, and handbooks picked by Quincy Larson, founder of freeCodeCamp, in his weekly emails. It focuses on back-end development and beginner AI, especially integrating AI into apps and back-ends. Every link goes straight to the original free source.</p>
+          <p class="live-note" id="live-note">
+            <span class="live-mark" aria-hidden="true"></span>
+            <span class="visually-hidden">Updated. </span>
+            <span class="live-line">Mueen, an AI agent running on Grok Bot, reads Muhammad Osama’s freeCodeCamp emails, keeps the useful picks, and updates this site every time a new email arrives.</span>
+            <span class="live-date" id="last-updated"></span>
+          </p>
+        </div>
+        <div class="hero-bottom">
+          <a class="pill start-learning" href="#main">Start learning <span aria-hidden="true">↗</span></a>
         </div>
         <div class="hero-art" aria-hidden="true">
-          <svg viewBox="0 0 440 480" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <svg class="art-wide" viewBox="0 0 360 84" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="0" y="2" width="214" height="80" rx="10" fill="#101010"/>
+            <circle cx="18" cy="20" r="5" fill="#e8432f"/><circle cx="34" cy="20" r="5" fill="#d4e5e9"/><circle cx="50" cy="20" r="5" fill="#5b97b4"/>
+            <text x="16" y="52" font-family="ui-monospace,monospace" font-size="18" fill="#ffffff"><tspan fill="#e8432f">$</tspan> back-end + AI</text>
+            <g transform="translate(228 18)">
+              <path d="M0 10V48C0 56 44 56 44 48V10" fill="#5b97b4" stroke="#101010" stroke-width="1.4"/>
+              <path d="M0 24C0 32 44 32 44 24M0 36C0 44 44 44 44 36" fill="none" stroke="#101010" stroke-width="1.4"/>
+              <ellipse cx="22" cy="10" rx="22" ry="8" fill="#d4e5e9" stroke="#101010" stroke-width="1.4"/>
+            </g>
+            <g transform="translate(292 8)">
+              <path d="M24 0 48 8V28C48 44 36 54 24 60 12 54 0 44 0 28V8Z" fill="#e8432f"/>
+              <path d="M14 30 22 38 36 20" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>
+          <svg class="art-full" viewBox="0 0 440 480" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
 <rect width="440" height="480" fill="white"/>
 <path d="M330 0C282 48 300 90 338 116C282 140 280 190 330 214C372 234 396 252 400 290L470 240V0Z" fill="#d4e5e9"/>
 <g fill="none" stroke="#101010" stroke-width="1.2" stroke-dasharray="3 5"><path d="M110 228V300"/><path d="M262 228C262 270 300 270 300 300"/></g>
@@ -108,30 +119,13 @@
         </div>
       </section>
       <div class="stats" role="region" aria-label="Study guide at a glance">
-        <dl class="stat"><dt id="stat-resources">—</dt><dd>learning resources</dd></dl>
-        <dl class="stat"><dt id="stat-tracks">—</dt><dd>study tracks</dd></dl>
-        <dl class="stat"><dt id="stat-picks">—</dt><dd>picks to start with</dd></dl>
-        <dl class="stat"><dt id="stat-linked">—</dt><dd>resources with links</dd></dl>
+        <dl class="stat"><dt id="stat-linked">—</dt><dd>Courses you can open</dd></dl>
+        <dl class="stat"><dt id="stat-mentions">—</dt><dd>Mentions awaiting a link</dd></dl>
+        <dl class="stat"><dt id="stat-tracks">—</dt><dd>Study tracks</dd></dl>
+        <dl class="stat"><dt id="stat-picks">—</dt><dd>Starter picks</dd></dl>
       </div>
       <section class="library" id="main" tabindex="-1" aria-labelledby="library-heading">
-        <div class="library-intro" id="guide">
-          <div>
-            <p class="kicker">// The collection</p>
-            <h2 id="library-heading">Quincy's Course Picks</h2>
-            <p class="sub">A study guide built from Quincy Larson's freeCodeCamp newsletters (Dec 2024 – Oct 2026), sorted for a back-end learning path. Click a card to open the course or article.</p>
-          </div>
-          <div class="legend" role="group" aria-label="Difficulty legend">
-            <span class="badge b-beg">Beginner</span>
-            <span class="badge b-int">Intermediate</span>
-            <span class="badge b-adv">Advanced</span>
-            <span class="badge b-nl">No link: only seen in a subject line</span>
-          </div>
-        </div>
-        <section class="updates" id="whats-new" aria-labelledby="updates-heading">
-          <h2 id="updates-heading">What’s new</h2>
-          <ol class="update-list" id="update-list"></ol>
-        </section>
-        <nav class="toolbar" aria-label="Filter courses">
+        <nav class="toolbar" id="toolbar" aria-label="Filter courses">
           <div class="wrap toolbar-in">
             <div class="tabs" id="tabs"></div>
             <div class="search">
@@ -140,25 +134,45 @@
                 <circle cx="7" cy="7" r="4.5"/>
                 <path d="M10.5 10.5 14 14" stroke-linecap="round"/>
               </svg>
-              <input type="search" id="q" name="q" placeholder="Search courses…" autocomplete="off" spellcheck="false" aria-controls="content">
+              <input type="search" id="q" name="q" placeholder="Search titles, duration, level…" autocomplete="off" spellcheck="false" aria-controls="content" aria-describedby="search-hint">
+              <p id="search-hint" class="visually-hidden">Searches titles, descriptions, duration, level, group, and track within the selected filter. Escape clears the search.</p>
             </div>
           </div>
         </nav>
-        <section aria-labelledby="top5-heading">
+        <div class="results-bar" id="results-bar"></div>
+        <p id="results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="library-intro" id="guide">
+          <div>
+            <p class="kicker">// The collection</p>
+            <h2 id="library-heading">Quincy's Course Picks</h2>
+            <p class="sub">Select a course card to open it on freecodecamp.org in a new tab. Newsletter mentions are listed after those cards. They do not have a checked link yet, so they are not clickable.</p>
+          </div>
+          <div class="legend" role="group" aria-label="Difficulty legend">
+            <span class="badge b-beg">Beginner</span>
+            <span class="badge b-int">Intermediate</span>
+            <span class="badge b-adv">Advanced</span>
+            <span class="badge b-nl">Awaiting a link</span>
+          </div>
+        </div>
+        <section class="updates" id="whats-new" aria-labelledby="updates-heading">
+          <h2 id="updates-heading">What’s new</h2>
+          <ol class="update-list" id="update-list"></ol>
+        </section>
+        <section id="top5" aria-labelledby="top5-heading">
           <div class="section-head">
             <h2 id="top5-heading">Top 5 for a back-end beginner</h2>
-            <p class="note">Start here, in this order.</p>
+            <p class="note">A starter route for back-end, separate from the catalogue. The order is the overview, the command line, APIs, databases, then Docker. The Back-end track is the wider list: Foundations starts with the command line and comes before that overview. These are two ways through the same courses, not one syllabus of prerequisites.</p>
           </div>
           <div class="picks" id="picks"></div>
         </section>
         <noscript>
           <p class="note empty">The course list is assembled in the browser. Enable JavaScript to search and filter it.</p>
         </noscript>
-        <p id="results-status" class="visually-hidden" role="status"></p>
         <div id="content"></div>
       </section>
     </main>
     <footer class="site-footer">Made by <a href="https://github.com/Mogadi">Muhammad Osama</a>. Links open the original free sources. <span id="footer-updated"></span></footer>
   </div>
+  <a class="jump-filters" id="jump-filters" href="#toolbar" hidden>Search and filters</a>
 </body>
 </html>
