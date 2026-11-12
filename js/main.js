@@ -367,6 +367,15 @@
     data.forEach(function (track) {
       resources = resources.concat(itemsOf(track));
     });
+    var counts = tally(resources);
+    var resourcesNode = document.getElementById("stat-resources");
+    var tracksNode = document.getElementById("stat-tracks");
+    var picksNode = document.getElementById("stat-picks");
+    var linkedNode = document.getElementById("stat-linked");
+    if (resourcesNode) resourcesNode.textContent = String(resources.length);
+    if (tracksNode) tracksNode.textContent = String(data.length);
+    if (picksNode) picksNode.textContent = String(picks.length);
+    if (linkedNode) linkedNode.textContent = String(counts.linked);
     var strip = document.getElementById("subjects");
     if (strip) {
       strip.innerHTML = data.map(function (track, index) {
@@ -374,8 +383,6 @@
           '</span><span class="strip-count">' + itemsOf(track).length + (itemsOf(track).length === 1 ? " course" : " courses") + "</span></a>";
       }).join("");
     }
-    var courseSearch = document.getElementById("course-search");
-    if (courseSearch) courseSearch.textContent = "or search " + resources.length + " courses";
     var preview = document.getElementById("update-preview");
     if (preview) {
       var updates = sortedUpdates();
