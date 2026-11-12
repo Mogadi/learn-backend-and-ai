@@ -1433,7 +1433,16 @@ body[data-page="search"] .page { padding-block-end: 64px; }
     display: block;
     border-inline-start: 0;
     border-block-start: 1px solid var(--ink);
-    block-size: min(88vw, 340px);
+  }
+}
+
+/* 641–800px only. The 640px rule keeps the phone art at min(100vw, 380px).
+   Match the drawing’s own ratio so slice does not cut the terminal or the network. */
+@media (max-width: 800px) and (min-width: 641px) {
+  .hero-art {
+    block-size: auto;
+    aspect-ratio: 440 / 480;
+    max-block-size: 880px;
   }
 }
 
