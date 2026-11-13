@@ -87,7 +87,8 @@
     ["How AI systems work (Python ML)","2h course","b","(subject line only)",null],
     ["Math that powers AI systems","book","b","(subject line only)",null],
     ["The paper that created modern AI: the Transformer story","9 min watch","b","",FCC+"the-paper-that-created-modern-ai-the-story-behind-the-transformer/"],
-    ["Learn Vector Databases","2h course","b","Embeddings, similarity search, and ChromaDB for teeing up data for your own LLM systems.",FCC+"learn-vector-databases-for-beginners-embeddings-similarity-search-chromadb/"],]},
+    ["Learn Vector Databases","2h course","b","Embeddings, similarity search, and ChromaDB for teeing up data for your own LLM systems.",FCC+"learn-vector-databases-for-beginners-embeddings-similarity-search-chromadb/"],
+    ["Learn agentic coding with Codex (AI coding agents)","2h course","b","Hands-on intro to building software with AI coding agents (OpenAI Codex): how to prompt, steer and review agent-written code.",FCC+"learn-agentic-coding-with-codex-ai-coding-agents/","2026-11-13"]]},
    {name:"Intermediate",items:[
     ["Claude Certified Developer Foundations","8h course","i","Anthropic APIs, MCP, prompt caching, prompt injection.",FCC+"unlock-the-power-of-ai-agents-with-the-new-claude-certified-developer-foundations-course/"],
     ["Build your own AI agent (Slack bot)","2h course","i","Node, Express and Postgres.",FCC+"build-your-own-ai-agent/"],
@@ -135,7 +136,8 @@
     ["Blender and Three.js cozy room portfolio","9h course","i","",FCC+"create-a-cute-room-portfolio-with-threejs-blender-javascript/"],
     ["Disaster simulation on a real map (Mapbox + Three.js)","handbook","i","",FCC+"disaster-simulation-real-map-mapbox-three-js/"],
     ["Discord bot with Python","handbook","b","",FCC+"how-to-build-a-basic-discord-bot-with-python/"],
-    ["2D Mario-style game","1h course","b","(subject line only)",null]]}
+    ["2D Mario-style game","1h course","b","(subject line only)",null],
+    ["Godot 4 roguelike course: build a complete top-down action game","10h course","b","Learn game dev fundamentals by building a roguelike dungeon crawler in the open source Godot engine.",FCC+"godot-4-roguelike-course-build-a-complete-top-down-action-game/","2026-11-13"]]}
   ]},
   {cat:"Front-end & mobile",icon:"📱",note:"Web and mobile work beside the back-end path.",groups:[
    {name:"Web and apps",items:[
@@ -146,7 +148,8 @@
     ["React Native grocery app","4h course","i","",FCC+"master-full-stack-mobile-development-with-react-native/"],
     ["Front-end with 19 projects","12h course","b","(subject line only)",null],
     ["Figma","8h course","b","(subject line only)",null],
-    ["MERN","4h course","i","(subject line only)",null]]}
+    ["MERN","4h course","i","(subject line only)",null],
+    ["How to use shadcn/ui in React Native applications (full handbook)","handbook","i","Full handbook on using shadcn/ui components in React Native apps.",FCC+"how-to-use-shadcn-ui-in-react-native-applications-full-handbook/","2026-11-13"]]}
   ]},
   {cat:"Career & community",icon:"🌍",note:"Documentaries and podcasts for motivation.",groups:[
    {name:"Watch & listen",items:[
@@ -156,8 +159,9 @@
   ]}
   ];
 
-  const lastUpdated = "2026-11-07";
+  const lastUpdated = "2026-11-13";
   const updates = [
+    { date: "2026-11-13", subject: "Learn how to build games [Free 10-hour game dev course where you code your own dungeon crawler]", courses: ["Learn agentic coding with Codex (AI coding agents)","How to use shadcn/ui in React Native applications (full handbook)","Godot 4 roguelike course: build a complete top-down action game"] },
     { date: "2026-11-07", subject: "Site launched", courses: [] }
   ];
 
