@@ -116,6 +116,7 @@
   {cat:"CS fundamentals",icon:"🧠",note:"Core computer science that makes everything else easier.",groups:[
    {name:"Core CS",items:[
     ["Data Structures and Algorithms, visually","1h course","b","Lots of graphics.",FCC+"learn-data-structures-and-algorithms-visually/"],
+    ["Learn Data Structures and Algorithms in Python with Visualizations","2h course","b","Visual YouTube course on stacks, queues, hash tables, trees, graphs, Big-O notation, and searching and sorting algorithms.",FCC+"learn-data-structures-and-algorithms-in-python-with-visualizations/","2026-11-21"],
     ["Think in code","5h course","b","How the JavaScript engine thinks.",FCC+"think-like-the-javascript-engine/"],
     ["Dijkstra's algorithm explained","22 min watch","i","",FCC+"understanding-dijkstra-s-algorithm/"],
     ["Design patterns handbook (C#)","handbook","i","",FCC+"the-design-patterns-handbook-learn-popular-design-patterns-with-c-code-examples/"],
@@ -159,8 +160,9 @@
   ]}
   ];
 
-  const lastUpdated = "2026-11-13";
+  const lastUpdated = "2026-11-21";
   const updates = [
+    { date: "2026-11-21", subject: "Learn Python visually [free 2-hour course on data structures]", courses: ["Learn Data Structures and Algorithms in Python with Visualizations"] },
     { date: "2026-11-13", subject: "Learn how to build games [Free 10-hour game dev course where you code your own dungeon crawler]", courses: ["Learn agentic coding with Codex (AI coding agents)","How to use shadcn/ui in React Native applications (full handbook)","Godot 4 roguelike course: build a complete top-down action game"] },
     { date: "2026-11-07", subject: "Site launched", courses: [] }
   ];
